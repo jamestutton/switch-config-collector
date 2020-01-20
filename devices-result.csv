@@ -1,4 +1,12 @@
 ip,version,result,comment
+3.45.48.56,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 5
+3.45.48.66,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 8
+3.45.48.70,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 2
+3.45.48.64,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 6
+3.45.48.72,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 3
+3.45.48.75,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 4
+3.45.48.71,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 7
+3.45.48.65,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 1
 3.45.48.69,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 0
 ------------------------------
-{"3.45.48.69": ["ssh", "admin"]}
+{"3.45.48.56": ["ssh", "admin"], "3.45.48.66": ["ssh", "admin"], "3.45.48.64": ["ssh", "admin"], "3.45.48.70": ["ssh", "admin"], "3.45.48.72": ["ssh", "admin"], "3.45.48.75": ["ssh", "admin"], "3.45.48.71": ["ssh", "admin"], "3.45.48.65": ["ssh", "admin"], "3.45.48.69": ["ssh", "admin"]}
