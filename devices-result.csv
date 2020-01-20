@@ -1,0 +1,4 @@
+ip,version,result,comment
+3.45.48.69,unix:/opt/unetlab/addons/iol/bin/i86bi-linux-l3-adventerprisek9-15.4,OK,Comment OK - 0
+------------------------------
+{"3.45.48.69": ["ssh", "admin"]}

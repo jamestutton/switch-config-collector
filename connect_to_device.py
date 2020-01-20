@@ -2,8 +2,13 @@ import platform
 import paramiko
 import netmiko
 import subprocess
+import sys
 
 from local_settings import credentials
+from netmiko import NetMikoTimeoutException
+from paramiko import SSHException
+
+method = {}
 
 
 def ping_device(current_IP_address):
@@ -28,6 +33,7 @@ def try_to_connect_ssh(current_ip_address):
                                                 secret=credentials['secret'][count],
                                                 )
             connection.enable()
+            method[current_ip_address] = ('ssh', credentials['username'][count])
             return connection
         except paramiko.AuthenticationException:
             continue
@@ -44,6 +50,7 @@ def try_to_connect_telnet(current_ip_address):
                                                 password=credentials['password'][count],
                                                 secret=credentials['secret'][count])
             connection.enable()
+            method[current_ip_address] = ('telnet', credentials['username'][count])
             return connection
         except paramiko.AuthenticationException:
             continue

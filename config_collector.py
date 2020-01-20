@@ -20,6 +20,7 @@ import sys
 import re
 import ipaddress
 import threading
+import json
 import pandas as pd
 
 # Imports custom created modules
@@ -28,7 +29,7 @@ import connect_to_device
 # Module "Global" Variables
 directory = '/configs_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 f = open('devices-result.csv', 'a', newline='')
-
+sys.tracebacklimit = 0
 
 # Module Functions and Classes
 def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
@@ -87,7 +88,7 @@ class Device:
             f.write(ver_and_config)
 
         self.collect_config_result = "OK"
-        # printProgressBar(2, 3, prefix='Progress:' + str(self.current_index), suffix='Complete', length=50)
+        printProgressBar(2, 3, prefix='Progress: index ' + str(self.current_index), suffix='Complete', length=50)
         return
 
     def init_connection_ssh(self):
@@ -115,7 +116,7 @@ class Device:
 
 def main(current_ip_address, current_index):
     # Initial call to print 0% progress
-    # printProgressBar(0, 3, prefix='Progress:' + str(current_index), suffix='Complete', length=50)
+    printProgressBar(0, 3, prefix='Progress: index ' + str(current_index), suffix='Complete', length=50)
     ping_result = connect_to_device.ping_device(current_ip_address)
     if not ping_result:
         version = ['N/A']
@@ -161,5 +162,7 @@ if __name__ == "__main__":
 
     else:
         raise SyntaxError("Insufficient arguments.")
+    f.write('---'*10 + '\n')
+    json.dump(connect_to_device.method, f)
     f.close()
     print(time.time() - start_time)
