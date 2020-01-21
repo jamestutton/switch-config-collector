@@ -6,7 +6,7 @@ Files:
 * config_collector.py - main script
 * connect_to_device.py - includes functions: ping and connect SSH/Telnet to the device
 * devices.csv - list of IP addresses
-* devices-result.csv - stores results of running script
+* devices-result.csv - result of running script
 
 ## Table of contents
 * [Technologies](#technologies)
