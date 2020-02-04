@@ -6,7 +6,7 @@ Files:
 * config_collector.py - main script
 * connect_to_device.py - includes functions: ping and connect SSH/Telnet to the device
 * devices.csv - list of IP addresses
-* devices-result.csv - stores results of running script
+* devices-result.csv - result of running script
 
 ## Table of contents
 * [Technologies](#technologies)
@@ -25,7 +25,8 @@ Examples:
 * python config_collector.py devices.csv
 * python config_collector.py 10.10.10.10
 
-
+## Result
+![image-31-552x552](https://user-images.githubusercontent.com/39305133/72814550-d51d9480-3c2a-11ea-991c-5bb23114de5f.png)
 
 ## Contact
 * Created by Dmitry Golovach
