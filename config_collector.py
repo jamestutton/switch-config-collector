@@ -8,7 +8,7 @@ Files:
 config_collector.py - main script
 connect_to_device.py - includes functions: ping and connect SSH/Telnet to the device
 devices.csv - list of IP addresses
-devices-result.csv - stores results of running script.
+devices-result.json - stores results of running script.
 
 """
 
@@ -67,7 +67,7 @@ class Device:
             def collect_config - main method to collect running/startup config and version
             def init_connection - initiate SSH connection to the device
             def close_connection - close SSH connection to the device
-            def write_result - put results in to the devices-result.csv file
+            def write_result - put results in to the devices-result.json file
     """
 
     def __init__(self, current_ip_address, current_index):
