@@ -8,11 +8,6 @@ Files:
 * devices.csv - list of IP addresses
 * devices-result.csv - result of running script
 
-## Table of contents
-* [Technologies](#technologies)
-* [Setup](#setup)
-* [Contact](#contact)
-
 ## Technologies
 * Python3
 
