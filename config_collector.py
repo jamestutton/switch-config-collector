@@ -10,6 +10,9 @@ connect_to_device.py - includes functions: ping and connect SSH/Telnet to the de
 devices.csv - list of IP addresses
 devices-result.json - stores results of running script
 
+(C) 2019 Dmitry Golovach
+email: dmitry.golovach@outlook.com
+
 """
 
 # Imports
