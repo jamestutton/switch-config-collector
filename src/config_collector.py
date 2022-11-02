@@ -196,6 +196,9 @@ class Device:
     def init_connection_telnet(self):
         self.connection = connect_to_device.try_to_connect_telnet(self.current_ip_address)
 
+    def init_connection_auto(self):
+        self.connection = connect_to_device.try_to_connect_auto(self.current_ip_address)        
+
     def init_ping(self):
         return connect_to_device.ping_device(self.current_ip_address)
 
@@ -210,7 +213,7 @@ class Device:
                     "locked_by": None,
                     "locked_at": None,
                     "result": result,
-                    "connection": f"{self.connection}",
+                    "connection": f"{self.connection.autodetect()}",
                     "completed_at": datetime.datetime.now(),
                 },
                 "$inc": {"attempts": 1},
@@ -251,6 +254,8 @@ def main(current_ip_address, current_index):
         device.init_connection_ssh()
         if device.connection == 'Telnet':
             device.init_connection_telnet()
+        if device.connection == 'autodetect':
+            device.init_connection_auto()            
         if device.connection:
            #device.collect_config_ssh()
            device.close_connection()

@@ -55,4 +55,20 @@ def try_to_connect_telnet(current_ip_address):
         except paramiko.AuthenticationException:
             continue
         except:
+            return 'autodetect'
+
+def try_to_connect_auto(current_ip_address):
+    for count in range(0, len(credentials['username'])):
+        try:
+            connection = netmiko.ConnectHandler(device_type='autodetect',
+                                                ip=current_ip_address,
+                                                username=credentials['username'][count],
+                                                password=credentials['password'][count],
+                                                secret=credentials['secret'][count])
+            connection.enable()
+            method[current_ip_address] = ('telnet', credentials['username'][count])
+            return connection
+        except paramiko.AuthenticationException:
+            continue
+        except:
             return
