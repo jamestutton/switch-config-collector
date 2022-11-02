@@ -94,7 +94,7 @@ class Devices:
 
     @property
     def device_collection(self) -> Collection:
-        return self.device_collection
+        return self._device_collection
 
     def put(self, device):
         """Place a job into the queue"""
@@ -171,7 +171,7 @@ class Device:
 
     @property
     def device_collection(self) -> Collection:
-        return self.device_collection
+        return self._device_collection
 
     def collect_config_ssh(self):
         self.connection.send_command("term len 0")
