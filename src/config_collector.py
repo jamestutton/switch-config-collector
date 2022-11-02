@@ -78,7 +78,8 @@ class Device:
     def __init__(self, current_ip_address, current_index):
         self.current_ip_address = current_ip_address
         self.current_index = current_index
-        _MONGODB_NAME = config("MONGODB_NAME", default=self._default_MONGODB_NAME, cast=str)
+        config = Config()
+        _MONGODB_NAME = config("MONGODB_NAME", cast=str)
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
 
     def collect_config_ssh(self):
