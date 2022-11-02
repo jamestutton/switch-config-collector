@@ -165,8 +165,8 @@ class Device:
         config = Config()
         _MONGODB_NAME = config("MONGODB_NAME", cast=str)
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
-        self.collect_config_result = None
-        self.version = None
+        self.collect_config_result = ""
+        self.version = ""
         self._device_collection = getattr(self._MONGODB, "network")
 
     @property
