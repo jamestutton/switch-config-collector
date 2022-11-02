@@ -143,7 +143,7 @@ class Devices:
     def Pending(self):
         return self.device_collection.find(
             filter={"Phase": "PHASE 2","locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
-wip        ).limit(100)
+        ).limit(100)
 
     def Working(self):
         return self.device_collection.find(
