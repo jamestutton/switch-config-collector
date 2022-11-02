@@ -93,52 +93,12 @@ class Devices:
         self._device_collection = getattr(self._MONGODB, "network")
         self.max_attempts = 1
         
+        self._batch_size = (config("BATCH_SIZE", cast=int,default=100))
 
     @property
     def device_collection(self) -> Collection:
         return self._device_collection
 
-    def put(self, device):
-        """Place a job into the queue"""
-        if channel is None:
-            channel = self.channel
-        try:
-            self.device_collection.insert_one(device)
-            return str(job["job_id"])
-        except errors.DuplicateKeyError as e:
-            logger.warning(e)
-            return False
-
-    def next(self):
-
-        aggregate_result = list(
-            self.queue_collection.aggregate(
-                [
-                    {
-                        "$match": {
-                            "locked_by": None,
-                            "locked_at": None,
-                            "completed_by": None,
-                            "channel": self.channel,
-                            "attempts": {"$lt": self.max_attempts},
-                            "$or": [{"run_after": {"$exists": False}}, {"run_after": {"$lt": datetime.now()}}],
-                        },
-                    },
-                    {"$sort": {"priority": pymongo.DESCENDING, "queued_at": pymongo.ASCENDING}},
-                    {"$limit": 1},
-                ],
-            ),
-        )
-        if not aggregate_result:
-            return None
-        return self._wrap_one(
-            self.queue_collection.find_one_and_update(
-                filter={"_id": aggregate_result[0]["_id"], "locked_by": None, "locked_at": None},
-                update={"$set": {"locked_by": self.consumer_id, "locked_at": datetime.now()}},
-                sort=[("priority", pymongo.DESCENDING)],
-                return_document=ReturnDocument.AFTER,
-            ),
-        )
 
     def Pending(self):
         return self.device_collection.find(
@@ -184,7 +144,7 @@ class Device:
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
         self._device_collection = getattr(self._MONGODB, "network")
         
-        self._batch_size = (config("BATCH_SIZE", cast=int,default=100))
+        
 
         self.collect_config_result = "NOT COLLECTED"
         self.version = ["N/A"]
