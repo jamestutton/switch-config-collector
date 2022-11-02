@@ -222,7 +222,7 @@ class Device:
                     "locked_by": None,
                     "locked_at": None,
                     "result": result,
-                    "connection": self.connection_type
+                    "connection": self.connection_type,
                     "completed_at": datetime.datetime.now(),
                 },
                 "$inc": {"attempts": 1},
