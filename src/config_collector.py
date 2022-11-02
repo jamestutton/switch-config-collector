@@ -92,6 +92,7 @@ class Devices:
         self.collect_config_result = 'UNKOWN'
         self._device_collection = getattr(self._MONGODB, "network")
         self.max_attempts = 1
+        
 
     @property
     def device_collection(self) -> Collection:
@@ -142,7 +143,7 @@ class Devices:
     def Pending(self):
         return self.device_collection.find(
             #filter={"locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
-            filter={"Phase": "PHASE 2", "result": {"$ne": "Working"} }
+            filter={"Phase": "PHASE 2", "result": {"$ne": "Ping Failed"} }
             #sort=[("priority", pymongo.DESCENDING)],
         )
 
@@ -172,6 +173,7 @@ class Device:
         self.collect_config_result = "NOT COLLECTED"
         self.version = ["N/A"]
         self.connection = None
+        self.pingable = None
         
 
     @property
@@ -205,7 +207,11 @@ class Device:
         self.connection = connect_to_device.try_to_connect_auto(self.current_ip_address)        
 
     def init_ping(self):
-        return connect_to_device.ping_device(self.current_ip_address)
+
+        #self.pingable = connect_to_device.ping_device(self.current_ip_address)
+        self.pingable = "Skipped"
+        return self.pingable
+        
 
     def close_connection(self):
         self.connection.disconnect()
@@ -226,6 +232,7 @@ class Device:
                     "locked_at": None,
                     "result": result,
                     "connection": self.connection_type,
+                    "pingable": self.pingable,
                     "completed_at": datetime.datetime.now(),
                 },
                 "$inc": {"attempts": 1},
