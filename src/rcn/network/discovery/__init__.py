@@ -194,17 +194,21 @@ class Device:
         )
 
     def UpdateDB(self,result):
-        self._data = self.device_collection.find_one_and_update(
-            filter={"Management IP": self.current_ip_address},
-            update={
-                "$set": {
+        device_data = {
                     "locked_by": None,
                     "locked_at": None,
                     "result": result,
                     "connection": self.connection_type,
-                    "pingable": self.pingable,
                     "completed_at": datetime.datetime.now(),
-                },
+        }
+        if self.pingable:
+            data["pingable"]: self.pingable
+        
+
+        self._data = self.device_collection.find_one_and_update(
+            filter={"Management IP": self.current_ip_address},
+            update={
+                "$set": device_data,
                 "$inc": {"attempts": 1},
             },
             return_document=ReturnDocument.AFTER,
