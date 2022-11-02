@@ -31,6 +31,20 @@ import connect_to_device
 from mongo import mongo_client
 from starlette.config import Config
 
+import pymongo
+import logging
+from pymongo import DeleteOne
+from pymongo import errors
+from pymongo import ReturnDocument
+from pymongo import UpdateOne
+from pymongo.collection import Collection
+from pymongo.errors import BulkWriteError
+
+# Get an instance of a logger
+
+logger = logging.getLogger(__name__)
+config = Config()
+
 # Module "Global" Variables
 directory = '/configs_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 f = open('devices-result.csv', 'a', newline='')
@@ -60,6 +74,76 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
         print()
 
 
+DEFAULT_INSERT: dict = {
+    "attempts": 0,
+    "locked_by": None,
+    "completed_by": None,
+    "completed_at": None,
+    "result": None,
+    "locked_at": None,
+    "last_error": None,
+}
+
+class Devices:
+    def __init__(self):
+        config = Config()
+        _MONGODB_NAME = config("MONGODB_NAME", cast=str)
+        self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
+        self.collect_config_result = 'UNKOWN'
+        self._device_collection = getattr(self._MONGODB, "network")
+
+    @property
+    def device_collection(self) -> Collection:
+        return self.device_collection
+
+    def put(self, device):
+        """Place a job into the queue"""
+        if channel is None:
+            channel = self.channel
+        try:
+            self.device_collection.insert_one(device)
+            return str(job["job_id"])
+        except errors.DuplicateKeyError as e:
+            logger.warning(e)
+            return False
+
+    def next(self):
+
+        aggregate_result = list(
+            self.queue_collection.aggregate(
+                [
+                    {
+                        "$match": {
+                            "locked_by": None,
+                            "locked_at": None,
+                            "completed_by": None,
+                            "channel": self.channel,
+                            "attempts": {"$lt": self.max_attempts},
+                            "$or": [{"run_after": {"$exists": False}}, {"run_after": {"$lt": datetime.now()}}],
+                        },
+                    },
+                    {"$sort": {"priority": pymongo.DESCENDING, "queued_at": pymongo.ASCENDING}},
+                    {"$limit": 1},
+                ],
+            ),
+        )
+        if not aggregate_result:
+            return None
+        return self._wrap_one(
+            self.queue_collection.find_one_and_update(
+                filter={"_id": aggregate_result[0]["_id"], "locked_by": None, "locked_at": None},
+                update={"$set": {"locked_by": self.consumer_id, "locked_at": datetime.now()}},
+                sort=[("priority", pymongo.DESCENDING)],
+                return_document=ReturnDocument.AFTER,
+            ),
+        )
+
+    def _jobs(self):
+        return self.queue_collection.find(
+            query={"locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
+            sort=[("priority", pymongo.DESCENDING)],
+        )
+
 class Device:
     """Creating the class with:
 
@@ -81,6 +165,12 @@ class Device:
         config = Config()
         _MONGODB_NAME = config("MONGODB_NAME", cast=str)
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
+        self.collect_config_result = 'UNKOWN'
+        self._device_collection = getattr(self._MONGODB, "network")
+
+    @property
+    def device_collection(self) -> Collection:
+        return self.device_collection
 
     def collect_config_ssh(self):
         self.connection.send_command("term len 0")
@@ -105,8 +195,29 @@ class Device:
     def init_connection_telnet(self):
         self.connection = connect_to_device.try_to_connect_telnet(self.current_ip_address)
 
+    def init_ping(self):
+        return connect_to_device.ping_device(self.current_ip_address)
+
     def close_connection(self):
         self.connection.disconnect()
+
+    def UpdateDB(self,result):
+        self._data = self.device_collection.find_one_and_update(
+            filter={"Management IP": self.current_ip_address},
+            update={
+                "$set": {
+                    "locked_by": None,
+                    "locked_at": None,
+                    "result": result,
+                    "connection": f"{self.connection}"
+                    "completed_at": datetime.now(),
+                },
+                "$inc": {"attempts": 1},
+            },
+            return_document=ReturnDocument.AFTER,
+        )
+
+
 
     @staticmethod
     def write_result(current_ip_address, version, collect_config_result, current_index, suffix_bar='Complete'):
@@ -122,26 +233,29 @@ class Device:
         return
 
 
+
 def main(current_ip_address, current_index):
     # Initial call to print 0% progress
     printProgressBar(0, 3, prefix='Progress: index ' + str(current_index), suffix='Complete', length=50)
-    ping_result = connect_to_device.ping_device(current_ip_address)
+    
+    device = Device(current_ip_address, current_index)
+    ping_result = device.init_ping(current_ip_address)
     if not ping_result:
-        version = ['N/A']
-        collect_config_result = 'Ping failed'
+        device.version = ['N/A']
+        device.collect_config_result = 'Ping Failed'
         suffix_bar = 'Failed'
-        Device.write_result(current_ip_address, version, collect_config_result, current_index, suffix_bar)
+        device.write_result(current_ip_address, device.version, device.collect_config_result, current_index, suffix_bar)
         return
     else:
-        device = Device(current_ip_address, current_index)
         device.init_connection_ssh()
         if device.connection == 'Telnet':
             device.init_connection_telnet()
         if device.connection:
-           device.collect_config_ssh()
+           #device.collect_config_ssh()
            device.close_connection()
            device.write_result(device.current_ip_address, device.version, device.collect_config_result,
                              device.current_index)
+           device.UpdateDB("Working")
         else:
             Device.write_result(current_ip_address, ['N/A'], "Connection Failed", current_index, "Failed")
 
