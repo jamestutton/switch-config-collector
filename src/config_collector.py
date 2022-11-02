@@ -143,22 +143,22 @@ class Devices:
     def Pending(self):
         return self.device_collection.find(
             filter={"Phase": "PHASE 2","locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
-        ).limit(100)
+        ).limit(self._batch_size)
 
     def Working(self):
         return self.device_collection.find(
             filter={"Phase": "PHASE 2", "result": "Working"} 
-        )
+        ).limit(self._batch_size)
 
     def PingFailed(self):
         return self.device_collection.find(
             filter={"Phase": "PHASE 2","result": "Ping Failed"} 
-        )
+        ).limit(self._batch_size)
         
     def ConnectionFailed(self):
         return self.device_collection.find(
             filter={"Phase": "PHASE 2","result": "Connection Failed"} 
-        )
+        ).limit(self._batch_size)
 
 class Device:
     """Creating the class with:
@@ -180,9 +180,12 @@ class Device:
         self.current_index = current_index
         config = Config()
         _MONGODB_NAME = config("MONGODB_NAME", cast=str)
+        
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
         self._device_collection = getattr(self._MONGODB, "network")
         
+        self._batch_size = (config("BATCH_SIZE", cast=int,default=100))
+
         self.collect_config_result = "NOT COLLECTED"
         self.version = ["N/A"]
         self.connection = None
