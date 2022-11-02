@@ -93,7 +93,7 @@ class Devices:
         self._device_collection = getattr(self._MONGODB, "network")
         self.max_attempts = 1
         
-        self._batch_size = (config("BATCH_SIZE", cast=int,default=100))
+        self._batch_size = config("BATCH_SIZE", cast=int,default=100)
 
     @property
     def device_collection(self) -> Collection:
