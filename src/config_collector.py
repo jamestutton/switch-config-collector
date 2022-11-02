@@ -144,7 +144,7 @@ class Devices:
             #filter={"locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
             filter={"Phase": "PHASE 2"}
             #sort=[("priority", pymongo.DESCENDING)],
-        )
+        ).limit(10)
 
 class Device:
     """Creating the class with:
@@ -282,13 +282,14 @@ if __name__ == "__main__":
         try:
             if sys.argv[1] == "DB":
                 devs = Devices().Pending()
+                i =0
                 for dev in devs:
-                    
+                    i += 1
                     if dev["Management IP"]:
-                        print(dev)
-                        # thread = threading.Thread(target=main, args=(df['ip'][current_index], current_index))
-                        # threads.append(thread)
-                        # thread.start()
+                        thread = threading.Thread(target=main, args=(dev["Management IP"], i))
+                        threads.append(thread)
+                        thread.start()
+                        time.sleep(1)
             else:
                 ipaddress.ip_address(sys.argv[1])
                 # pass only IP address of the device
