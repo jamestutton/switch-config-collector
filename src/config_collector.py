@@ -207,6 +207,13 @@ class Device:
     def close_connection(self):
         self.connection.disconnect()
 
+    @property
+    def connection_type(self):
+        if self.connection:
+            return f"{self.connection.__class__}",
+        else:
+            return None
+
     def UpdateDB(self,result):
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
@@ -215,7 +222,7 @@ class Device:
                     "locked_by": None,
                     "locked_at": None,
                     "result": result,
-                    "connection": f"{self.connection.__class__}",
+                    "connection": self.connection_type
                     "completed_at": datetime.datetime.now(),
                 },
                 "$inc": {"attempts": 1},
