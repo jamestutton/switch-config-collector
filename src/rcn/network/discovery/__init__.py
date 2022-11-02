@@ -10,7 +10,7 @@ import json
 import pandas as pd
 
 # Imports custom created modules
-import src.rcn.network.discovery.connect_to_device as connect_to_device
+import rcn.network.discovery.connect_to_device as connect_to_device
 from rcn.mongo import mongo_client
 from starlette.config import Config
 
