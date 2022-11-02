@@ -59,7 +59,7 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
     if iteration == total:
         print()
 
-default=self._default_MONGODB_NAME, 
+
 class Device:
     """Creating the class with:
 
