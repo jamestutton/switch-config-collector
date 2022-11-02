@@ -213,7 +213,7 @@ class Device:
                     "locked_by": None,
                     "locked_at": None,
                     "result": result,
-                    "connection": f"{self.connection.autodetect()}",
+                    "connection": f"{self.connection.__class__}",
                     "completed_at": datetime.datetime.now(),
                 },
                 "$inc": {"attempts": 1},
