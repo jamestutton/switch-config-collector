@@ -142,7 +142,7 @@ class Devices:
     def Pending(self):
         return self.device_collection.find(
             #filter={"locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
-            filter={}
+            filter={"Phase": "PHASE 2","attempts": {"$lt": self.max_attempts}}
             #sort=[("priority", pymongo.DESCENDING)],
         )
 
@@ -251,6 +251,7 @@ def main(current_ip_address, current_index):
         device.collect_config_result = 'Ping Failed'
         suffix_bar = 'Failed'
         device.write_result(current_ip_address, device.version, device.collect_config_result, current_index, suffix_bar)
+        device.UpdateDB("Ping Failed")
         return
     else:
         device.init_connection_ssh()
@@ -266,6 +267,7 @@ def main(current_ip_address, current_index):
            device.UpdateDB("Working")
         else:
             Device.write_result(current_ip_address, ['N/A'], "Connection Failed", current_index, "Failed")
+            device.UpdateDB("Connection Failed")
 
         
     return
@@ -281,7 +283,12 @@ if __name__ == "__main__":
             if sys.argv[1] == "DB":
                 devs = Devices().Pending()
                 for dev in devs:
-                    print(dev)
+                    
+                    if dev["Management IP"]:
+                        print(dev)
+                        thread = threading.Thread(target=main, args=(df['ip'][current_index], current_index))
+                        threads.append(thread)
+                        thread.start()
             else:
                 ipaddress.ip_address(sys.argv[1])
                 # pass only IP address of the device
