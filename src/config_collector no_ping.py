@@ -77,7 +77,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         try:
             if sys.argv[1] == "DB":
-                devs = Devices().Pending()
+                devs = Devices().PingFailed()
                 i =0
                 for dev in devs:
                     i += 1
