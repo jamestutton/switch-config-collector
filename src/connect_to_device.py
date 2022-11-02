@@ -24,16 +24,16 @@ def ping_device(current_IP_address):
 
 
 def try_to_connect_ssh(current_ip_address):
-    for count in range(0, len(credentials['username'])):
+    for cred in credentials(current_ip_address).list:
         try:
             connection = netmiko.ConnectHandler(device_type='cisco_ios_ssh',
                                                 ip=current_ip_address,
-                                                username=credentials['username'][count],
-                                                password=credentials['password'][count],
-                                                secret=credentials['secret'][count],
-                                                )
+                                                username=cred.username,
+                                                password=cred.password,
+                                                secret=cred.secret
+                                                ).limit(10)
             connection.enable()
-            method[current_ip_address] = ('ssh', credentials['username'][count])
+            method[current_ip_address] = ('ssh', cred.username)
             return connection
         except paramiko.AuthenticationException:
             continue
@@ -42,15 +42,16 @@ def try_to_connect_ssh(current_ip_address):
 
 
 def try_to_connect_telnet(current_ip_address):
-    for count in range(0, len(credentials['username'])):
+    for cred in credentials(current_ip_address).list:
         try:
             connection = netmiko.ConnectHandler(device_type='cisco_ios_telnet',
                                                 ip=current_ip_address,
-                                                username=credentials['username'][count],
-                                                password=credentials['password'][count],
-                                                secret=credentials['secret'][count])
+                                                username=cred.username,
+                                                password=cred.password,
+                                                secret=cred.secret
+                                                )
             connection.enable()
-            method[current_ip_address] = ('telnet', credentials['username'][count])
+            method[current_ip_address] = ('telnet', cred.username)
             return connection
         except paramiko.AuthenticationException:
             continue
@@ -58,15 +59,16 @@ def try_to_connect_telnet(current_ip_address):
             return 'autodetect'
 
 def try_to_connect_auto(current_ip_address):
-    for count in range(0, len(credentials['username'])):
+    for cred in credentials(current_ip_address).list:
         try:
             connection = netmiko.ConnectHandler(device_type='autodetect',
                                                 ip=current_ip_address,
-                                                username=credentials['username'][count],
-                                                password=credentials['password'][count],
-                                                secret=credentials['secret'][count])
+                                                username=cred.username,
+                                                password=cred.password,
+                                                secret=cred.secret
+                                                )
             connection.enable()
-            method[current_ip_address] = ('telnet', credentials['username'][count])
+            method[current_ip_address] = ('telnet', cred.username)
             return connection
         except paramiko.AuthenticationException:
             continue
