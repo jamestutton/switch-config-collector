@@ -221,8 +221,7 @@ class Device:
 
     def init_ping(self):
 
-        #self.pingable = connect_to_device.ping_device(self.current_ip_address)
-        self.pingable = "Skipped"
+        self.pingable = connect_to_device.ping_device(self.current_ip_address)
         return self.pingable
         
 
