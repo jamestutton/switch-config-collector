@@ -278,7 +278,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         try:
             if sys.argv[1] == "DB":
-                devs = Devices().Pending
+                devs = Devices().Pending()
                 for dev in devs:
                     print(dev)
             else:
