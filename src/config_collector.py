@@ -141,7 +141,7 @@ class Devices:
 
     def Pending(self):
         return self.device_collection.find(
-            query={"locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
+            filter={"locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
             sort=[("priority", pymongo.DESCENDING)],
         )
 
