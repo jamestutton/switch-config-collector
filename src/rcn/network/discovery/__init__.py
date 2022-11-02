@@ -202,7 +202,7 @@ class Device:
                     "completed_at": datetime.datetime.now(),
         }
         if self.pingable:
-            data["pingable"]: self.pingable
+            device_data["pingable"]: self.pingable
         
 
         self._data = self.device_collection.find_one_and_update(
