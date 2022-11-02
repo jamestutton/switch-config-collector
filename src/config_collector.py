@@ -142,9 +142,22 @@ class Devices:
 
     def Pending(self):
         return self.device_collection.find(
-            #filter={"locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
-            filter={"Phase": "PHASE 2", "result": "Ping Failed"} 
-            #sort=[("priority", pymongo.DESCENDING)],
+            filter={"Phase": "PHASE 2","locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
+        )
+
+    def Working(self):
+        return self.device_collection.find(
+            filter={"Phase": "PHASE 2", "result": "Working"} 
+        )
+
+    def PingFailed(self):
+        return self.device_collection.find(
+            filter={"Phase": "PHASE 2","result": "Ping Failed"} 
+        )
+        
+    def ConnectionFailed(self):
+        return self.device_collection.find(
+            filter={"Phase": "PHASE 2","result": "Connection Failed"} 
         )
 
 class Device:
@@ -219,7 +232,7 @@ class Device:
     @property
     def connection_type(self):
         if self.connection:
-            return f"{self.connection.__class__}",
+            return f"{self.connection.__class__}"
         else:
             return None
 
