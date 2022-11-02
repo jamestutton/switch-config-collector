@@ -132,11 +132,15 @@ def main(current_ip_address, current_index):
         device.init_connection_ssh()
         if device.connection == 'Telnet':
             device.init_connection_telnet()
-        device.collect_config_ssh()
-        device.close_connection()
-        device.write_result(device.current_ip_address, device.version, device.collect_config_result,
-                            device.current_index)
+        if device.connection:
+           device.collect_config_ssh()
+           device.close_connection()
+           device.write_result(device.current_ip_address, device.version, device.collect_config_result,
+                             device.current_index)
+        else:
+            Device.write_result(current_ip_address, ['N/A'], "Connection Failed", current_index, "Failed")
 
+        
     return
 
 
