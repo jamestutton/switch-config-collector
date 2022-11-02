@@ -28,7 +28,7 @@ import pandas as pd
 
 # Imports custom created modules
 import connect_to_device
-from src.mongo import mongo_client
+from mongo import mongo_client
 from starlette.config import Config
 
 # Module "Global" Variables
@@ -59,7 +59,7 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
     if iteration == total:
         print()
 
-
+default=self._default_MONGODB_NAME, 
 class Device:
     """Creating the class with:
 
