@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "switch-config-collector"
+version = "0.1.0"
+description = ""
+authors = ["James Tutton <james.tutton@redcentricplc.com>"]
+readme = "README.md"
+packages = [{include = "switch_config_collector"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pymongo = "^4.3.2"
+dnspython = "^2.2.1"
+pydantic = "^1.10.2"
+starlette = "^0.21.0"
+urllib3 = "^1.26.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
