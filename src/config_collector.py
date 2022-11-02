@@ -286,9 +286,9 @@ if __name__ == "__main__":
                     
                     if dev["Management IP"]:
                         print(dev)
-                        thread = threading.Thread(target=main, args=(df['ip'][current_index], current_index))
-                        threads.append(thread)
-                        thread.start()
+                        # thread = threading.Thread(target=main, args=(df['ip'][current_index], current_index))
+                        # threads.append(thread)
+                        # thread.start()
             else:
                 ipaddress.ip_address(sys.argv[1])
                 # pass only IP address of the device
