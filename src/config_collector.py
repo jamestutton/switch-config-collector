@@ -91,6 +91,7 @@ class Devices:
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
         self.collect_config_result = 'UNKOWN'
         self._device_collection = getattr(self._MONGODB, "network")
+        self.max_attempts = 1
 
     @property
     def device_collection(self) -> Collection:
@@ -138,8 +139,8 @@ class Devices:
             ),
         )
 
-    def _jobs(self):
-        return self.queue_collection.find(
+    def Pending(self):
+        return self.device_collection.find(
             query={"locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
             sort=[("priority", pymongo.DESCENDING)],
         )
@@ -276,10 +277,15 @@ if __name__ == "__main__":
     threads = []
     if len(sys.argv) == 2:
         try:
-            ipaddress.ip_address(sys.argv[1])
-            # pass only IP address of the device
-            current_index = 0
-            main(sys.argv[1], current_index)
+            if sys.argv[1] == "DB":
+                devs = Devices().Pending
+                for dev in devs:
+                    print(dev)
+            else:
+                ipaddress.ip_address(sys.argv[1])
+                # pass only IP address of the device
+                current_index = 0
+                main(sys.argv[1], current_index)
         except ValueError:
             df = pd.read_csv(sys.argv[1])
             for current_index in df.index:
