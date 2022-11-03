@@ -128,7 +128,7 @@ class Device:
                     continue
                 except Exception as e:
                     self.error = f"{e}"
-                    logger.exception(e)
+                    #logger.exception(e)
 
    
 
