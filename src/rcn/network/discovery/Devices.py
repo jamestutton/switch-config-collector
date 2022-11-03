@@ -48,9 +48,9 @@ class Devices:
             ]
         }
         if Working:
-            filter["NetDiscovery.result"] = "Working",
+            filter["NetDiscovery.result"] = "Working"
         else:
-            filter["NetDiscovery.result"] = {"$ne": "Working"},
+            filter["NetDiscovery.result"] = {"$ne": "Working"}
             
 
         aggregate_result = list(
