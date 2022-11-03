@@ -83,9 +83,9 @@ if __name__ == "__main__":
         try:
             if sys.argv[1] == "DB":
                 i =0
-                devs = Devices().Pending()
+                devs = Devices()
                 
-                while dev:= Devices().next:
+                while dev:= devs.next():
                     i += 1
                     if dev["Management IP"]:
                         thread = threading.Thread(target=main, args=(dev["Management IP"], i))
