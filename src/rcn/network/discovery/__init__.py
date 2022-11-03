@@ -104,7 +104,7 @@ class Devices:
                             "locked_by": None, 
                             "locked_at": None, 
                             "attempts": {"$lt": self.max_attempts},
-                            "$or": [{"next_poll": {"$exists": False}}, {"next_poll": {"$lt": datetime.now()}}],
+                            "$or": [{"next_poll": {"$exists": False}}, {"next_poll": {"$lt": datetime.datetime.now()}}],
                         },
                     },
                     {"$limit": 1},
@@ -116,7 +116,7 @@ class Devices:
         return self._wrap_one(
             self.queue_collection.find_one_and_update(
                 filter={"_id": aggregate_result[0]["_id"], "locked_by": None, "locked_at": None},
-                update={"$set": {"locked_at": datetime.now()}},
+                update={"$set": {"locked_at": datetime.datetime.now()}},
                 return_document=ReturnDocument.AFTER,
             ),
         )
