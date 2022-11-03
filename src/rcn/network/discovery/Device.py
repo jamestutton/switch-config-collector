@@ -4,6 +4,7 @@ import logging
 import platform
 import random
 import subprocess
+import socket
 
 import netmiko
 import paramiko
@@ -166,12 +167,14 @@ class Device:
             NetDiscovery_data["pingable"] = self.pingable
         elif result == "Working":
             NetDiscovery_data["pingable"] = "Skipped"
+            NetDiscovery_data["source"] = socket.gethostname()
+
 
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": {"Queue": Queue_data, "NetDiscovery": NetDiscovery_data},
-                "$inc": {"attempts": 1, "polls": 1},
+                "$inc": {"Queue.attempts": 1, "Queue.polls": 1},
             },
             return_document=ReturnDocument.AFTER,
         )
