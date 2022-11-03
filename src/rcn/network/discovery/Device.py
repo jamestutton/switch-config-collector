@@ -174,7 +174,6 @@ class Device:
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": {"Queue": Queue_data, "NetDiscovery": NetDiscovery_data},
-                "$inc": {"Queue.attempts": 1, "Queue.polls": 1},
             },
             return_document=ReturnDocument.AFTER,
         )
