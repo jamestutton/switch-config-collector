@@ -199,9 +199,14 @@ class Device:
                     self.connection.enable()
                     self.enable = True
                     return 
-                except paramiko.AuthenticationException:
+                except paramiko.AuthenticationException as e:
+                    self.error = f"{e}"
                     continue
-                except netmiko.exceptions.NetmikoTimeoutException:
+                except netmiko.exceptions.NetmikoTimeoutException as e:
+                    self.error = f"{e}"
+                    continue
+                except paramiko.ssh_exception.SSHException as e:
+                    self.error = f"{e}"
                     continue
                 except Exception as e:
                     self.error = f"{e}"
