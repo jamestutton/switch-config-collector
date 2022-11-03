@@ -44,29 +44,11 @@ sys.tracebacklimit = 0
 
 # Module Functions and Classes
 
-def main(current_ip_address, current_index):
+def main(device_data, current_index):
     # Initial call to print 0% progress
-    printProgressBar(0, 3, prefix='Progress: index ' + str(current_index), suffix='Complete', length=50)
-    
-    device = Device(current_ip_address, current_index)
-    device.init_connection_ssh()
-    if device.connection == 'Telnet':
-        device.init_connection_telnet()
-    if device.connection == 'autodetect':
-        device.init_connection_auto()            
-    if device.connection:
-        #device.collect_config_ssh()
-        device.close_connection()
-        device.write_result(device.current_ip_address, device.version, device.collect_config_result,
-                            device.current_index)
-        device.UpdateDB("Working")
-    else:
-        Device.write_result(current_ip_address, ['N/A'], "Connection Failed", current_index, "Failed")
-        device.UpdateDB("Connection Failed")
-
-        
+    device = Device(device_data, current_index)
+    device.TestComms()
     return
-
 
 # Check to see if this file is the "__main__" script being executed
 if __name__ == "__main__":
@@ -81,7 +63,7 @@ if __name__ == "__main__":
                 for dev in devs:
                     i += 1
                     if dev["Management IP"]:
-                        thread = threading.Thread(target=main, args=(dev["Management IP"], i))
+                        thread = threading.Thread(target=main, args=(dev, i))
                         threads.append(thread)
                         thread.start()
                         time.sleep(0.2)

@@ -26,7 +26,7 @@ import json
 import pandas as pd
 
 # Imports custom created modules
-from rcn.network.discovery import Devices,Device,printProgressBar
+from rcn.network.discovery import Devices,Device
 from starlette.config import Config
 
 
@@ -44,33 +44,10 @@ sys.tracebacklimit = 0
 
 # Module Functions and Classes
 
-def main(current_ip_address, current_index):
+def main(device_data, current_index):
     # Initial call to print 0% progress
-    printProgressBar(0, 3, prefix='Progress: index ' + str(current_index), suffix='Complete', length=50)
-    
-    device = Device(current_ip_address, current_index)
-    device.Processing()
-    ping_result = device.init_ping()
-    if not ping_result:
-        device.version = ['N/A']
-        device.collect_config_result = 'Ping Failed'
-        suffix_bar = 'Failed'
-        device.write_result(current_ip_address, device.version, device.collect_config_result, current_index, suffix_bar)
-        device.UpdateDB("Ping Failed")
-        return
-    else:
-        device.init_connection()
-        if device.connected:
-           #device.collect_config_ssh()
-           device.close_connection()
-           device.write_result(device.current_ip_address, device.version, device.collect_config_result,
-                             device.current_index)
-           device.UpdateDB("Working")
-        else:
-            Device.write_result(current_ip_address, ['N/A'], "Connection Failed", current_index, "Failed")
-            device.UpdateDB("Connection Failed")
-
-        
+    device = Device(device_data, current_index)
+    device.TestComms()
     return
 
 
@@ -88,7 +65,7 @@ if __name__ == "__main__":
                 while dev:= devs.next():
                     i += 1
                     if dev["Management IP"]:
-                        thread = threading.Thread(target=main, args=(dev["Management IP"], i))
+                        thread = threading.Thread(target=main, args=(dev, i))
                         threads.append(thread)
                         thread.start()
                     if i % 10 == 32:

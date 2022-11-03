@@ -76,6 +76,7 @@ DEFAULT_INSERT: dict = {
     "last_error": None,
 }
 
+
 class Devices:
     def __init__(self):
         config = Config()
@@ -122,6 +123,9 @@ class Devices:
         )
 
 
+    def _wrap_one(self, data):
+        return data and Device(data) or None
+
 
     def Pending(self):
         return self.device_collection.find(
@@ -158,8 +162,8 @@ class Device:
             def write_result - put results in to the devices-result.json file
     """
 
-    def __init__(self, current_ip_address, current_index):
-        self.current_ip_address = current_ip_address
+    def __init__(self, data,current_index=1):
+        self._data = data 
         self.current_index = current_index
         config = Config()
         _MONGODB_NAME = config("MONGODB_NAME", cast=str)
@@ -183,6 +187,9 @@ class Device:
         self.enable = None
         self.error = None
         
+    @property
+    def current_ip_address(self):
+        return self._data["Management IP"]
 
     @property
     def device_collection(self) -> Collection:
@@ -320,6 +327,23 @@ class Device:
             return_document=ReturnDocument.AFTER,
         )
 
+    def TestComms(self,skipping=False):
+        self.Processing()
+        if skipping or self.init_ping():
+            self.init_connection()
+            if self.connected:
+                #device.collect_config_ssh()
+                self.close_connection()
+                self.UpdateDB("Working")
+                return
+            else:
+                self.UpdateDB("Connection Failed")
+                return
+        else:
+            self.UpdateDB("Ping Failed")
+            return
+        
+            
 
 
     @staticmethod
