@@ -82,15 +82,18 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         try:
             if sys.argv[1] == "DB":
-                devs = Devices().Pending()
                 i =0
-                for dev in devs:
-                    i += 1
-                    if dev["Management IP"]:
-                        thread = threading.Thread(target=main, args=(dev["Management IP"], i))
-                        threads.append(thread)
-                        thread.start()
-                        time.sleep(0.2)
+                devs = Devices().Pending()
+                
+                while len(devs) > 0:
+                    for dev in devs:
+                        i += 1
+                        if dev["Management IP"]:
+                            thread = threading.Thread(target=main, args=(dev["Management IP"], i))
+                            threads.append(thread)
+                            thread.start()
+                            time.sleep(10)
+                    devs = Devices().Pending()
             else:
                 ipaddress.ip_address(sys.ipargv[1])
                 # pass only IP address of the device
