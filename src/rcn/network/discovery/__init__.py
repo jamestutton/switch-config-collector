@@ -139,17 +139,20 @@ class Device:
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
         self._device_collection = getattr(self._MONGODB, "network")
         
+        #netmiko device types to test in order
         self.device_types = [
             'cisco_ios_ssh',
             'cisco_ios_telnet',
             'autodetect'
         ]
 
+        self.device_type = "UNKNOWN"
         self.collect_config_result = "NOT COLLECTED"
         self.version = ["N/A"]
         self.connection = None
         self.pingable = None
-        
+        self.prompt = None
+        self.enable = None
         
 
     @property
@@ -231,7 +234,7 @@ class Device:
 
     @property
     def connection_type(self):
-        if self.connection:
+        if self.connected:
             return f"{self.connection.__class__}"
         else:
             return None
@@ -252,7 +255,10 @@ class Device:
                     "locked_by": None,
                     "locked_at": None,
                     "result": result,
-                    "connection": self.connection_type,
+                    "device_type": self.device_type,
+                    "enable": self.enable,
+                    "prompt": self.prompt,
+                    "device_type": self.device_type,
                     "completed_at": datetime.datetime.now(),
                     "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
         }
@@ -265,7 +271,7 @@ class Device:
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": device_data,
-                "$inc": {"attempts": 1},
+                "$inc": {"attempts": 1,"polls": 1},
             },
             return_document=ReturnDocument.AFTER,
         )
