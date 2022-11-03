@@ -115,7 +115,7 @@ class Devices:
         if not aggregate_result:
             return None
         return self._wrap_one(
-            self.queue_collection.find_one_and_update(
+            self.device_collection.find_one_and_update(
                 filter={"_id": aggregate_result[0]["_id"], "locked_by": None, "locked_at": None},
                 update={"$set": {"locked_at": datetime.datetime.now()}},
                 return_document=ReturnDocument.AFTER,
