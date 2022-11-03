@@ -55,7 +55,7 @@ if __name__ == "__main__":
                 thread = threading.Thread(target=TestDevice, args=(dev,))
                 threads.append(thread)
                 thread.start()
-            if i % 32 == 32:
+            if i % 32 == 0:
                 time.sleep(20)
         logger.warning("All Devices Processed")
     except Exception as e:
