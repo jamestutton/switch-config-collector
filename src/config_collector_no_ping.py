@@ -26,7 +26,6 @@ import json
 import pandas as pd
 
 # Imports custom created modules
-import rcn.network.discovery.connect_to_device as connect_to_device
 from rcn.network.discovery import Devices,Device,printProgressBar
 from starlette.config import Config
 
@@ -106,6 +105,5 @@ if __name__ == "__main__":
     else:
         raise SyntaxError("Insufficient arguments.")
     f.write('---'*10 + '\n')
-    json.dump(connect_to_device.method, f)
     f.close()
     print(time.time() - start_time)
