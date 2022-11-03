@@ -253,7 +253,7 @@ class Device:
                     "result": result,
                     "connection": self.connection_type,
                     "completed_at": datetime.datetime.now(),
-                    "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1-40))
+                    "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
         }
         if self.pingable:
             device_data["pingable"]= self.pingable
