@@ -57,7 +57,7 @@ class Devices:
             self.device_collection.aggregate(
                 [
                     {
-                        "$match": 
+                        "$match": filter
                     },
                     {"$limit": 1},
                 ],
