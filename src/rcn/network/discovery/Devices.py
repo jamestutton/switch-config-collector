@@ -68,7 +68,6 @@ class Devices:
                                 {
                                     "Queue.locked_by": None, 
                                     "Queue.locked_at": None, 
-                                    "Queue.attempts": {"$lt": self.max_attempts},
                                     "$or": [
                                         {"Queue.next_poll": {"$exists": False}}, 
                                         {"Queue.next_poll": None}, 
