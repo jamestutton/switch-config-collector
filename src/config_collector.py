@@ -85,7 +85,7 @@ if __name__ == "__main__":
                 i =0
                 devs = Devices().Pending()
                 
-                while devs.count() > 0:
+                while devs:
                     for dev in devs:
                         i += 1
                         if dev["Management IP"]:
