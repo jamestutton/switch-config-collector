@@ -125,6 +125,10 @@ class Device:
         else:
             return False
 
+    @property
+    def Source(self):
+        host = socket.gethostname()
+        return f"from__{host}"
 
     def close_connection(self):
         self.connection.disconnect()
@@ -177,8 +181,8 @@ class Device:
         elif self.Succesful:
             NetDiscovery_data["pingable"] = "Skipped"
         
-        if self.Succesful:            
-            NetDiscovery_data["source"] = socket.gethostname()
+               
+        NetDiscovery_data[self.Source] = self.Succesful
 
 
         self._data = self.device_collection.find_one_and_update(
