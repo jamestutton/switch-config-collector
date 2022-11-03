@@ -206,7 +206,7 @@ class Device:
         else:
             return False
 
-    def init_connection(self,Device):
+    def init_connection(self):
         for device_type in self.device_types:
             for cred in credentials(self.current_ip_address).list:
                 try:
