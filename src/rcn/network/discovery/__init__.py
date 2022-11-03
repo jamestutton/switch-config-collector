@@ -1,28 +1,27 @@
 # Imports
 import os
-import time
+# import time
 import datetime
 import sys
 import re
-import ipaddress
-import threading
-import json
+# import ipaddress
+# import threading
+# import json
 import pandas as pd
 import subprocess
 import random
 # Imports custom created modules
-import rcn.network.discovery.connect_to_device as connect_to_device
 from rcn.mongo import mongo_client
 from starlette.config import Config
 
 
 import logging
-from pymongo import DeleteOne
-from pymongo import errors
+# from pymongo import DeleteOne
+# from pymongo import errors
 from pymongo import ReturnDocument
-from pymongo import UpdateOne
+# from pymongo import UpdateOne
 from pymongo.collection import Collection
-from pymongo.errors import BulkWriteError
+# from pymongo.errors import BulkWriteError
 
 import platform
 import paramiko
@@ -31,7 +30,7 @@ import subprocess
 import sys
 
 from local_settings import credentials
-from paramiko import SSHException
+# from paramiko import SSHException
 
 # Get an instance of a logger
 
@@ -86,7 +85,7 @@ class Devices:
         self._device_collection = getattr(self._MONGODB, "network")
         self.max_attempts = 1
         
-        self._batch_size = config("BATCH_SIZE", cast=int,default=100)
+        self._batch_size = config("BATCH_SIZE", cast=int,default=32)
 
         
 
@@ -212,15 +211,7 @@ class Device:
                     self.error = f"{e}"
                     logger.exception(e)
 
-                
-    # def init_connection_ssh(self):
-    #     self.connection = connect_to_device.try_to_connect_ssh(self.current_ip_address)
-
-    # def init_connection_telnet(self):
-    #     self.connection = connect_to_device.try_to_connect_telnet(self.current_ip_address)
-
-    # def init_connection_auto(self):
-    #     self.connection = connect_to_device.try_to_connect_auto(self.current_ip_address)        
+   
 
     def init_ping(self):
         try:
@@ -254,6 +245,20 @@ class Device:
                 "$set": {
                     "HitsTacacs": True,
                 }
+            },
+            return_document=ReturnDocument.AFTER,
+        )
+
+    def Processing(self):
+        self._data = self.device_collection.find_one_and_update(
+            filter={"Management IP": self.current_ip_address},
+            update={
+                "$set": {
+                    "locked_by": self.current_index,
+                    "locked_at": datetime.datetime.now(),
+                    "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
+                },
+                "$inc": {"attempts": 1},
             },
             return_document=ReturnDocument.AFTER,
         )

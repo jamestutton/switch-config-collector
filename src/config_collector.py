@@ -50,6 +50,7 @@ def main(current_ip_address, current_index):
     printProgressBar(0, 3, prefix='Progress: index ' + str(current_index), suffix='Complete', length=50)
     
     device = Device(current_ip_address, current_index)
+    device.Processing()
     ping_result = device.init_ping()
     if not ping_result:
         device.version = ['N/A']
