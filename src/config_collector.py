@@ -1,84 +1,51 @@
 #!/usr/bin/env python3
-
-"""
-A simple script to collect starting/running config and versions, put them into the file.
-Store results in the file.
-
-Files:
-config_collector.py - main script
-connect_to_device.py - includes functions: ping and connect SSH/Telnet to the device
-devices.csv - list of IP addresses
-devices-result.json - stores results of running script
-
-(C) 2019 Dmitry Golovach
-email: dmitry.golovach@outlook.com
-
-"""
-
 # Imports
-import os
-import time
 import datetime
+import logging
+import os
 import sys
-import ipaddress
 import threading
-import json
-import pandas as pd
+import time
 
-# Imports custom created modules
-from rcn.network.discovery import Devices,Device
+from rcn.network.discovery import Devices
+from rcn.network.discovery import Device
 from starlette.config import Config
 
-
-import logging
+# Imports custom created modules
 
 # Get an instance of a logger
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 config = Config()
 
-# Module "Global" Variables
-directory = '/configs_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-f = open('devices-result.csv', 'a', newline='')
-sys.tracebacklimit = 0
 
-# Module Functions and Classes
-
-def main(device):
-    # Initial call to print 0% progress
+def TestDevice(device: Device):
     device.TestComms()
-    return
+    
 
 
 # Check to see if this file is the "__main__" script being executed
 if __name__ == "__main__":
     start_time = time.time()
-    os.mkdir(os.getcwd() + directory)
     threads = []
-    if len(sys.argv) == 2:
-        try:
-            if sys.argv[1] == "DB":
-                i =0
-                devs = Devices()
-                
-                while dev:= devs.next():
-                    i += 1
-                    if dev["Management IP"]:
-                        dev.current_index = i
-                        thread = threading.Thread(target=main, args=(dev))
-                        threads.append(thread)
-                        thread.start()
-                    if i % 10 == 32:
-                        time.sleep(20)
-        except Exception as e:
-            logger.exception(e)
+    try:
+        i = 0
+        devs = Devices()
+
+        while dev := devs.next():
+            i += 1
+            if dev.current_ip_address:
+                dev.current_index = i
+                thread = threading.Thread(target=TestDevice, args=(dev,))
+                threads.append(thread)
+                thread.start()
+            if i % 10 == 32:
+                time.sleep(20)
+        
+    except Exception as e:
+        logger.exception(e)
         # Wait for all to complete
-        for thread in threads:
-            thread.join()
-
-
-    else:
-        raise SyntaxError("Insufficient arguments.")
-    f.write('---'*10 + '\n')
-    f.close()
+    for thread in threads:
+        thread.join()
     print(time.time() - start_time)
