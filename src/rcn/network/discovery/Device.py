@@ -191,7 +191,7 @@ class Device:
 
     def TestComms(self, skipping=False):
         self.Processing()
-        logger.info(f"Testing {self.ip}")
+        logger.warning(f"Testing {self.ip}")
         if skipping or self.init_ping():
             self.init_connection()
             if self.connected:
