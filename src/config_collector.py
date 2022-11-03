@@ -85,15 +85,15 @@ if __name__ == "__main__":
                 i =0
                 devs = Devices().Pending()
                 
-                while devs:
-                    for dev in devs:
-                        i += 1
-                        if dev["Management IP"]:
-                            thread = threading.Thread(target=main, args=(dev["Management IP"], i))
-                            threads.append(thread)
-                            thread.start()
-                    time.sleep(20)
-                    devs = Devices().Pending()
+                while dev:= Devices().next:
+                    i += 1
+                    if dev["Management IP"]:
+                        thread = threading.Thread(target=main, args=(dev["Management IP"], i))
+                        threads.append(thread)
+                        thread.start()
+                    if i % 10 == 32:
+                        time.sleep(20)
+                    
             else:
                 ipaddress.ip_address(sys.ipargv[1])
                 # pass only IP address of the device
