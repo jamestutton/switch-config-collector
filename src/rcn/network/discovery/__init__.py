@@ -65,6 +65,7 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
     if iteration == total:
         print()
 
+config = Config()
 
 DEFAULT_INSERT: dict = {
     "attempts": 0,
@@ -148,24 +149,10 @@ class Devices:
         ).limit(self._batch_size)
 
 class Device:
-    """Creating the class with:
-
-        self.current_ip_address - IP address
-        self.current_index - index from devices.csv
-        self.version - grep version from the 'show version'command
-        self.collect_config_result - result of running config_collection.py sctipt
-
-        Methods:
-            def collect_config - main method to collect running/startup config and version
-            def init_connection - initiate SSH connection to the device
-            def close_connection - close SSH connection to the device
-            def write_result - put results in to the devices-result.json file
-    """
-
     def __init__(self, data,current_index=1):
         self._data = data 
         self.current_index = current_index
-        config = Config()
+        
         _MONGODB_NAME = config("MONGODB_NAME", cast=str)
         
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
@@ -209,7 +196,7 @@ class Device:
             f.write(ver_and_config)
 
         self.collect_config_result = "OK"
-        printProgressBar(2, 3, prefix='Progress: index ' + str(self.current_index), suffix='Complete', length=50)
+        
         return
 
     @property
@@ -342,21 +329,5 @@ class Device:
         else:
             self.UpdateDB("Ping Failed")
             return
-        
-            
-
-
-    @staticmethod
-    def write_result(current_ip_address, version, collect_config_result, current_index, suffix_bar='Complete'):
-        dict_result = {
-            'ip': current_ip_address,
-            'version': version[0],
-            'result': collect_config_result,
-            'comment': 'Comment OK - ' + str(current_index),
-        }
-        df_result = pd.DataFrame(dict_result, [current_index])
-        df_result.to_csv(f, mode='a', index=False, header=f.tell() == 0)
-        printProgressBar(3, 3, prefix='Progress: index ' + str(current_index), suffix=suffix_bar, length=50)
-        return
 
 

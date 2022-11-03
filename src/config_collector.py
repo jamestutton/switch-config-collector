@@ -44,9 +44,8 @@ sys.tracebacklimit = 0
 
 # Module Functions and Classes
 
-def main(device_data, current_index):
+def main(device):
     # Initial call to print 0% progress
-    device = Device(device_data, current_index)
     device.TestComms()
     return
 
@@ -65,23 +64,12 @@ if __name__ == "__main__":
                 while dev:= devs.next():
                     i += 1
                     if dev["Management IP"]:
-                        thread = threading.Thread(target=main, args=(dev, i))
+                        dev.current_index = i
+                        thread = threading.Thread(target=main, args=(dev))
                         threads.append(thread)
                         thread.start()
                     if i % 10 == 32:
                         time.sleep(20)
-                    
-            else:
-                ipaddress.ip_address(sys.ipargv[1])
-                # pass only IP address of the device
-                current_index = 0
-                main(sys.argv[1], current_index)
-        except ValueError:
-            df = pd.read_csv(sys.argv[1])
-            for current_index in df.index:
-                thread = threading.Thread(target=main, args=(df['ip'][current_index], current_index))
-                threads.append(thread)
-                thread.start()
         except Exception as e:
             logger.exception(e)
         # Wait for all to complete
