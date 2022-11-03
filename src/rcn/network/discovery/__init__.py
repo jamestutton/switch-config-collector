@@ -199,7 +199,7 @@ class Device:
                     continue
                 except Exception as e:
                     self.error = f"{e}"
-                    logger.error(e)
+                    logger.exception(e)
 
                 
     # def init_connection_ssh(self):
@@ -219,7 +219,8 @@ class Device:
                 self.pingable =  False
             else:
                 self.pingable =  True
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             self.pingable =  False
 
         return self.pingable
@@ -260,7 +261,7 @@ class Device:
         elif result == "Working":
             device_data["pingable"]="Skipped"
 
-        self._data = self.device_collection.find_one_and_update(
+        self._data = self.device_collection.find_one_and_update(random
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": device_data,
