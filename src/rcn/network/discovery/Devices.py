@@ -63,11 +63,10 @@ class Devices:
                 [
                     {
                         "$match": {
-                            "Phase": "PHASE 2",
-                            "locked_by": None, 
-                            "locked_at": None, 
-                            "attempts": {"$lt": self.max_attempts},
-                            "$or": [{"next_poll": {"$exists": False}}, {"next_poll": {"$lt": datetime.datetime.now()}}],
+                            "NetworkDiscovery.locked_by": None, 
+                            "NetworkDiscovery.locked_at": None, 
+                            "NetworkDiscovery.attempts": {"$lt": self.max_attempts},
+                            "$or": [{"NetworkDiscovery.next_poll": {"$exists": False}}, {"NetworkDiscovery.next_poll": {"$lt": datetime.datetime.now()}}],
                         },
                     },
                     {"$limit": 1},
@@ -78,8 +77,8 @@ class Devices:
             return None
         return self._wrap_one(
             self.device_collection.find_one_and_update(
-                filter={"_id": aggregate_result[0]["_id"], "locked_by": None, "locked_at": None},
-                update={"$set": {"locked_at": datetime.datetime.now()}},
+                filter={"_id": aggregate_result[0]["_id"], "NetworkDiscovery.locked_by": None, "NetworkDiscovery.locked_at": None},
+                update={"$set": {"NetworkDiscovery.locked_at": datetime.datetime.now()}},
                 return_document=ReturnDocument.AFTER,
             ),
         )
@@ -89,23 +88,5 @@ class Devices:
         return Device(data) or None
 
 
-    def Pending(self):
-        return self.device_collection.find(
-            filter={"Phase": "PHASE 2","locked_by": None, "locked_at": None, "attempts": {"$lt": self.max_attempts}},
-        ).limit(self._batch_size)
 
-    def Working(self):
-        return self.device_collection.find(
-            filter={"Phase": "PHASE 2", "result": "Working"} 
-        ).limit(self._batch_size)
-
-    def PingFailed(self):
-        return self.device_collection.find(
-            filter={"Phase": "PHASE 2","result": "Ping Failed"} 
-        ).limit(self._batch_size)
-        
-    def ConnectionFailed(self):
-        return self.device_collection.find(
-            filter={"Phase": "PHASE 2","result": "Connection Failed"} 
-        ).limit(self._batch_size)
 

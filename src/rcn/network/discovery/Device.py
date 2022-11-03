@@ -162,22 +162,22 @@ class Device:
         )
 
     def Processing(self):
+        NetDiscovery_data = {
+            "locked_by": self.current_index,
+            "locked_at": datetime.datetime.now(),
+            "started_at": datetime.datetime.now(),
+            "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
+        }
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
-                "$set": {
-                    "locked_by": self.current_index,
-                    "locked_at": datetime.datetime.now(),
-                    "started_at": datetime.datetime.now(),
-                    "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
-                },
-                "$inc": {"attempts": 1},
+                "$set": {"NetDiscovery": NetDiscovery_data}
             },
             return_document=ReturnDocument.AFTER,
         )
 
     def UpdateDB(self,result):
-        device_data = {
+        NetDiscovery_data = {
                     "locked_by": None,
                     "locked_at": None,
                     "result": result,
@@ -190,14 +190,14 @@ class Device:
                     "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
         }
         if self.pingable:
-            device_data["pingable"]= self.pingable
+            NetDiscovery_data["pingable"]= self.pingable
         elif result == "Working":
-            device_data["pingable"]="Skipped"
+            NetDiscovery_data["pingable"]="Skipped"
 
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
-                "$set": {"NetDiscovery": device_data},
+                "$set": {"NetDiscovery": NetDiscovery_data},
                 "$inc": {"attempts": 1,"polls": 1},
             },
             return_document=ReturnDocument.AFTER,
