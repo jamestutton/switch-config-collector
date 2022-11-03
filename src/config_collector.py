@@ -82,7 +82,8 @@ if __name__ == "__main__":
                 thread = threading.Thread(target=main, args=(df['ip'][current_index], current_index))
                 threads.append(thread)
                 thread.start()
-
+        except Exception as e:
+            logger.exception(e)
         # Wait for all to complete
         for thread in threads:
             thread.join()
