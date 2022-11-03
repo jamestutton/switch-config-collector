@@ -59,12 +59,8 @@ def main(current_ip_address, current_index):
         device.UpdateDB("Ping Failed")
         return
     else:
-        device.init_connection_ssh()
-        if device.connection == 'Telnet':
-            device.init_connection_telnet()
-        if device.connection == 'autodetect':
-            device.init_connection_auto()            
-        if device.connection:
+        device.init_connection()
+        if device.connected:
            #device.collect_config_ssh()
            device.close_connection()
            device.write_result(device.current_ip_address, device.version, device.collect_config_result,

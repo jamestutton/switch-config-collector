@@ -9,7 +9,7 @@ import threading
 import json
 import pandas as pd
 import subprocess
-
+import random
 # Imports custom created modules
 import rcn.network.discovery.connect_to_device as connect_to_device
 from rcn.mongo import mongo_client
@@ -253,6 +253,7 @@ class Device:
                     "result": result,
                     "connection": self.connection_type,
                     "completed_at": datetime.datetime.now(),
+                    "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1-40))
         }
         if self.pingable:
             device_data["pingable"]= self.pingable
