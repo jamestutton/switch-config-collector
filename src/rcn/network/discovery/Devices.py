@@ -1,12 +1,13 @@
 # Imports
 import datetime
-from rcn.mongo import mongo_client
-from starlette.config import Config
-from rcn.network.discovery import Device
-
 import logging
+
 from pymongo import ReturnDocument
 from pymongo.collection import Collection
+from rcn.mongo import mongo_client
+from rcn.network.discovery import Device
+from starlette.config import Config
+
 # Get an instance of a logger
 
 logger = logging.getLogger(__name__)
@@ -14,51 +15,45 @@ logger.setLevel(logging.INFO)
 config = Config()
 
 
-
 class Devices:
     def __init__(self):
         config = Config()
         _MONGODB_NAME = config("MONGODB_NAME", cast=str)
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
-        self.collect_config_result = 'UNKOWN'
+        self.collect_config_result = "UNKOWN"
         self._device_collection = getattr(self._MONGODB, "network")
         self.max_attempts = 1
-        
-        self._batch_size = config("BATCH_SIZE", cast=int,default=32)
 
-        
+        self._batch_size = config("BATCH_SIZE", cast=int, default=32)
 
     @property
     def device_collection(self) -> Collection:
         return self._device_collection
 
-    def next(self,Working=False):
+    def next(self, Working=False):
         filter = {
             "$or": [
                 {"Queue": None},
                 {
-                    "Queue.locked_by": None, 
-                    "Queue.locked_at": None, 
+                    "Queue.locked_by": None,
+                    "Queue.locked_at": None,
                     "$or": [
-                        {"Queue.next_poll": {"$exists": False}}, 
-                        {"Queue.next_poll": None}, 
-                        {"Queue.next_poll": {"$lt": datetime.datetime.now()}}
-                    ]
-                }
-            ]
+                        {"Queue.next_poll": {"$exists": False}},
+                        {"Queue.next_poll": None},
+                        {"Queue.next_poll": {"$lt": datetime.datetime.now()}},
+                    ],
+                },
+            ],
         }
         if Working:
             filter["NetDiscovery.result"] = "Working"
         else:
             filter["NetDiscovery.result"] = {"$ne": "Working"}
-            
 
         aggregate_result = list(
             self.device_collection.aggregate(
                 [
-                    {
-                        "$match": filter
-                    },
+                    {"$match": filter},
                     {"$limit": 1},
                 ],
             ),
@@ -73,10 +68,5 @@ class Devices:
             ),
         )
 
-
     def _wrap_one(self, data):
         return Device(data) or None
-
-
-
-

@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # Imports
-import datetime
 import logging
-import os
 import sys
 import threading
 import time
 
-from rcn.network.discovery import Devices
 from rcn.network.discovery import Device
+from rcn.network.discovery import Devices
 from starlette.config import Config
 
 # Imports custom created modules
@@ -20,12 +18,10 @@ logger.setLevel(logging.INFO)
 logger.info("Starting")
 
 
-
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
-
 
 
 config = Config()
@@ -37,7 +33,6 @@ def TestDevice(device: Device):
     except Exception as e:
         logger.exception(f"Exception Processing {device.ip}")
         logger.exception(e)
-    
 
 
 # Check to see if this file is the "__main__" script being executed
