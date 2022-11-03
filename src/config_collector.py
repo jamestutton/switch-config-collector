@@ -16,7 +16,19 @@ from starlette.config import Config
 # Get an instance of a logger
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
+logger.info("Starting")
+
+root = logging.getLogger()
+root.setLevel(logging.INFO)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+root.addHandler(handler)
+
+
 config = Config()
 
 
@@ -42,7 +54,7 @@ if __name__ == "__main__":
                 thread.start()
             if i % 10 == 32:
                 time.sleep(20)
-        
+        logger.warning("All Devices Processed")
     except Exception as e:
         logger.exception(e)
         # Wait for all to complete

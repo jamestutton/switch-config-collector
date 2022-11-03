@@ -63,11 +63,20 @@ class Devices:
                 [
                     {
                         "$match": {
-                            "NetworkDiscovery.locked_by": None, 
-                            "NetworkDiscovery.locked_at": None, 
-                            "NetworkDiscovery.attempts": {"$lt": self.max_attempts},
-                            "$or": [{"NetworkDiscovery.next_poll": {"$exists": False}}, {"NetworkDiscovery.next_poll": {"$lt": datetime.datetime.now()}}],
-                        },
+                            "$or": [
+                                {"Queue": None},
+                                {
+                                    "Queue.locked_by": None, 
+                                    "Queue.locked_at": None, 
+                                    "Queue.attempts": {"$lt": self.max_attempts},
+                                    "$or": [
+                                        {"Queue.next_poll": {"$exists": False}}, 
+                                        {"Queue.next_poll": None}, 
+                                        {"Queue.next_poll": {"$lt": datetime.datetime.now()}}
+                                    ]
+                                }
+                            ]
+                        }
                     },
                     {"$limit": 1},
                 ],
@@ -77,8 +86,8 @@ class Devices:
             return None
         return self._wrap_one(
             self.device_collection.find_one_and_update(
-                filter={"_id": aggregate_result[0]["_id"], "NetworkDiscovery.locked_by": None, "NetworkDiscovery.locked_at": None},
-                update={"$set": {"NetworkDiscovery.locked_at": datetime.datetime.now()}},
+                filter={"_id": aggregate_result[0]["_id"], "Queue.locked_by": None, "Queue.locked_at": None},
+                update={"$set": {"Queue.locked_at": datetime.datetime.now()}},
                 return_document=ReturnDocument.AFTER,
             ),
         )

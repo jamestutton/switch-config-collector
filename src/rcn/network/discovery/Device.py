@@ -77,22 +77,7 @@ class Device:
     def device_collection(self) -> Collection:
         return self._device_collection
 
-    def collect_config_ssh(self):
-        self.connection.send_command("term len 0")
-        startup_config = self.connection.send_command("show startup-config")
-        hostname = re.findall('hostname (.*)\n', startup_config)
-        show_ver = self.connection.send_command('show version')
-        # self.version = re.findall('.* "(.*bin)"\n', show_ver)
-        self.version = re.findall('.*"(.*)"\n', show_ver)
-        ver_and_config = show_ver + '\n\n\n========== STARTUP CONFIG ==========\n\n\n' + startup_config
-        device_path = os.getcwd() + directory + "/" + hostname[0] + '_version_startup-config_' \
-                      + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S-%f') + ".txt"
-        with open(device_path, "w+") as f:
-            f.write(ver_and_config)
 
-        self.collect_config_result = "OK"
-        
-        return
 
     @property
     def connected(self) -> bool:
@@ -155,14 +140,14 @@ class Device:
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": {
-                    "HitsTacacs": True,
+                    "NetDiscovery.HitsTacacs": True,
                 }
             },
             return_document=ReturnDocument.AFTER,
         )
 
     def Processing(self):
-        NetDiscovery_data = {
+        Queue_data = {
             "locked_by": self.current_index,
             "locked_at": datetime.datetime.now(),
             "started_at": datetime.datetime.now(),
@@ -171,23 +156,25 @@ class Device:
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
-                "$set": {"NetDiscovery": NetDiscovery_data}
+                "$set": {"Queue": Queue_data}
             },
             return_document=ReturnDocument.AFTER,
         )
 
     def UpdateDB(self,result):
-        NetDiscovery_data = {
+        Queue_data = {
                     "locked_by": None,
                     "locked_at": None,
+                    "completed_at": datetime.datetime.now(),
+                    "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
+        }
+        NetDiscovery_data = {
                     "result": result,
                     "device_type": self.device_type,
                     "enable": self.enable,
                     "prompt": self.prompt,
                     "last_error": self.error,
                     "device_type": self.device_type,
-                    "completed_at": datetime.datetime.now(),
-                    "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
         }
         if self.pingable:
             NetDiscovery_data["pingable"]= self.pingable
@@ -197,7 +184,10 @@ class Device:
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
-                "$set": {"NetDiscovery": NetDiscovery_data},
+                "$set": {
+                    "Queue": Queue_data,
+                    "NetDiscovery": NetDiscovery_data
+                    },
                 "$inc": {"attempts": 1,"polls": 1},
             },
             return_document=ReturnDocument.AFTER,
@@ -205,7 +195,7 @@ class Device:
 
     def TestComms(self,skipping=False):
         self.Processing()
-        logger.warning(f"Testing {self.ip}")
+        logger.info(f"Testing {self.ip}")
         if skipping or self.init_ping():
             self.init_connection()
             if self.connected:
