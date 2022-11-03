@@ -153,6 +153,7 @@ class Device:
         self.pingable = None
         self.prompt = None
         self.enable = None
+        self.error = None
         
 
     @property
@@ -200,6 +201,8 @@ class Device:
                     return 
                 except paramiko.AuthenticationException:
                     continue
+                except netmiko.exceptions.NetmikoTimeoutException:
+                    continue
                 except Exception as e:
                     self.error = f"{e}"
                     logger.exception(e)
@@ -223,7 +226,7 @@ class Device:
             else:
                 self.pingable =  True
         except Exception as e:
-            logger.exception(e)
+            #logger.exception(e)
             self.pingable =  False
 
         return self.pingable
@@ -258,6 +261,7 @@ class Device:
                     "device_type": self.device_type,
                     "enable": self.enable,
                     "prompt": self.prompt,
+                    "last_error": self.error,
                     "device_type": self.device_type,
                     "completed_at": datetime.datetime.now(),
                     "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
