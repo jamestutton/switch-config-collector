@@ -5,7 +5,7 @@ import platform
 import random
 import subprocess
 import socket
-
+import time
 import netmiko
 import paramiko
 from local_settings import credentials
@@ -190,18 +190,19 @@ class Device:
         )
 
     def TestComms(self, skipping=False):
+        start_time = time.time()
         self.Processing()
-        logger.warning(f"Testing {self.ip}")
+        logger.info(f"Testing {self.ip}")
+        result = "UNKNOWN"
         if skipping or self.init_ping():
             self.init_connection()
             if self.connected:
-                # device.collect_config_ssh()
                 self.close_connection()
-                self.UpdateDB("Working")
-                return
+                result = "Working"
             else:
-                self.UpdateDB("Connection Failed")
-                return
+                result = "Connection Failed"
         else:
-            self.UpdateDB("Ping Failed")
-            return
+            result = "Ping Failed"
+        time_taken = (time.time() - start_time)
+        logger.warning(f"Tested {self.ip} in ({time_taken}s) result= {result}")
+        self.UpdateDB(result)
