@@ -197,7 +197,7 @@ class Device:
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
-                "$set": device_data,
+                "$set": {"NetDiscovery": device_data},
                 "$inc": {"attempts": 1,"polls": 1},
             },
             return_document=ReturnDocument.AFTER,
