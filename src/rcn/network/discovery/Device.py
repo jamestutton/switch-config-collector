@@ -181,7 +181,7 @@ class Device:
         elif self.Succesful:
             NetDiscovery_data["pingable"] = "Skipped"
         
-               
+        NetDiscovery_data["source"] = self.Source       
         NetDiscovery_data[self.Source] = self.Succesful
 
 
