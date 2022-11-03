@@ -261,7 +261,7 @@ class Device:
         elif result == "Working":
             device_data["pingable"]="Skipped"
 
-        self._data = self.device_collection.find_one_and_update(random
+        self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": device_data,
