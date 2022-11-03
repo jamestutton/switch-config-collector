@@ -8,13 +8,14 @@ import ipaddress
 import threading
 import json
 import pandas as pd
+import subprocess
 
 # Imports custom created modules
 import rcn.network.discovery.connect_to_device as connect_to_device
 from rcn.mongo import mongo_client
 from starlette.config import Config
 
-import pymongo
+
 import logging
 from pymongo import DeleteOne
 from pymongo import errors
@@ -22,6 +23,15 @@ from pymongo import ReturnDocument
 from pymongo import UpdateOne
 from pymongo.collection import Collection
 from pymongo.errors import BulkWriteError
+
+import platform
+import paramiko
+import netmiko
+import subprocess
+import sys
+
+from local_settings import credentials
+from paramiko import SSHException
 
 # Get an instance of a logger
 
@@ -78,6 +88,8 @@ class Devices:
         
         self._batch_size = config("BATCH_SIZE", cast=int,default=100)
 
+        
+
     @property
     def device_collection(self) -> Collection:
         return self._device_collection
@@ -127,7 +139,11 @@ class Device:
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
         self._device_collection = getattr(self._MONGODB, "network")
         
-        
+        self.device_types = [
+            'cisco_ios_ssh',
+            'cisco_ios_telnet',
+            'autodetect'
+        ]
 
         self.collect_config_result = "NOT COLLECTED"
         self.version = ["N/A"]
@@ -157,18 +173,55 @@ class Device:
         printProgressBar(2, 3, prefix='Progress: index ' + str(self.current_index), suffix='Complete', length=50)
         return
 
-    def init_connection_ssh(self):
-        self.connection = connect_to_device.try_to_connect_ssh(self.current_ip_address)
+    @property
+    def connected(self) -> bool:
+        if self.connection:
+            return True
+        else:
+            return False
 
-    def init_connection_telnet(self):
-        self.connection = connect_to_device.try_to_connect_telnet(self.current_ip_address)
+    def init_connection(self):
+        for device_type in self.device_types:
+            for cred in credentials(self.current_ip_address).list:
+                try:
+                    self.connection = netmiko.ConnectHandler(device_type=device_type,
+                                                        ip=self.current_ip_address,
+                                                        username=cred.username,
+                                                        password=cred.password,
+                                                        secret=cred.secret
+                                                        )
+                    self.device_type = device_type
+                    self.prompt = True
+                    self.connection.enable()
+                    self.enable = True
+                    return 
+                except paramiko.AuthenticationException:
+                    continue
+                except Exception as e:
+                    self.error = f"{e}"
+                    logger.error(e)
 
-    def init_connection_auto(self):
-        self.connection = connect_to_device.try_to_connect_auto(self.current_ip_address)        
+                
+    # def init_connection_ssh(self):
+    #     self.connection = connect_to_device.try_to_connect_ssh(self.current_ip_address)
+
+    # def init_connection_telnet(self):
+    #     self.connection = connect_to_device.try_to_connect_telnet(self.current_ip_address)
+
+    # def init_connection_auto(self):
+    #     self.connection = connect_to_device.try_to_connect_auto(self.current_ip_address)        
 
     def init_ping(self):
+        try:
+            output = subprocess.check_output("ping -{} 1 {}".format('n' if platform.system().lower(
+            ) == "windows" else 'c', self.current_IP_address), shell=True, universal_newlines=True)
+            if 'unreachable' in output:
+                self.pingable =  False
+            else:
+                self.pingable =  True
+        except Exception:
+            self.pingable =  False
 
-        self.pingable = connect_to_device.ping_device(self.current_ip_address)
         return self.pingable
         
 
