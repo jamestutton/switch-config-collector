@@ -32,7 +32,11 @@ config = Config()
 
 
 def TestDevice(device: Device):
-    device.TestComms()
+    try:
+        device.TestComms()
+    except Exception as e:
+        logger.exception(f"Exception Processing {device.ip}")
+        logger.exception(e)
     
 
 
