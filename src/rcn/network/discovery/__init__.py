@@ -93,6 +93,35 @@ class Devices:
     def device_collection(self) -> Collection:
         return self._device_collection
 
+    def next(self):
+
+        aggregate_result = list(
+            self.device_collection.aggregate(
+                [
+                    {
+                        "$match": {
+                            "Phase": "PHASE 2",
+                            "locked_by": None, 
+                            "locked_at": None, 
+                            "attempts": {"$lt": self.max_attempts},
+                            "$or": [{"next_poll": {"$exists": False}}, {"next_poll": {"$lt": datetime.now()}}],
+                        },
+                    },
+                    {"$limit": 1},
+                ],
+            ),
+        )
+        if not aggregate_result:
+            return None
+        return self._wrap_one(
+            self.queue_collection.find_one_and_update(
+                filter={"_id": aggregate_result[0]["_id"], "locked_by": None, "locked_at": None},
+                update={"$set": {"locked_at": datetime.now()}},
+                return_document=ReturnDocument.AFTER,
+            ),
+        )
+
+
 
     def Pending(self):
         return self.device_collection.find(
