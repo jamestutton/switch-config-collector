@@ -29,12 +29,12 @@ import subprocess
 import sys
 
 from local_settings import credentials
-# from paramiko import SSHException
+from paramiko import SSHException
 
 # Get an instance of a logger
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 config = Config()
 
 
@@ -108,7 +108,7 @@ class Device:
                 except netmiko.exceptions.NetmikoTimeoutException as e:
                     self.error = f"{e}"
                     continue
-                except paramiko.ssh_exception.SSHException as e:
+                except SSHException as e:
                     self.error = f"{e}"
                     continue
                 except Exception as e:

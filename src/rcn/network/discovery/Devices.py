@@ -1,40 +1,16 @@
 # Imports
-import os
-# import time
 import datetime
-import sys
-import re
-# import ipaddress
-# import threading
-# import json
-import pandas as pd
-import subprocess
-import random
-# Imports custom created modules
 from rcn.mongo import mongo_client
 from starlette.config import Config
 from rcn.network.discovery import Device
 
 import logging
-# from pymongo import DeleteOne
-# from pymongo import errors
 from pymongo import ReturnDocument
-# from pymongo import UpdateOne
 from pymongo.collection import Collection
-# from pymongo.errors import BulkWriteError
-
-import platform
-import paramiko
-import netmiko
-import subprocess
-import sys
-
-
-# from paramiko import SSHException
-
 # Get an instance of a logger
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 config = Config()
 
 

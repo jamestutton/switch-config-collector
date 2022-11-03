@@ -56,6 +56,7 @@ if __name__ == "__main__":
                 threads.append(thread)
                 thread.start()
             if i % 32 == 0:
+                logger.info("Sleeping for 20")
                 time.sleep(20)
         logger.warning("All Devices Processed")
     except Exception as e:
