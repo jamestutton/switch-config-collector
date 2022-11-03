@@ -125,7 +125,7 @@ class Devices:
 
 
     def _wrap_one(self, data):
-        return data and Device(data) or None
+        return Device(data) or None
 
 
     def Pending(self):
@@ -206,16 +206,17 @@ class Device:
         else:
             return False
 
-    def init_connection(self):
+    def init_connection(selfDevice):
         for device_type in self.device_types:
             for cred in credentials(self.current_ip_address).list:
                 try:
-                    self.connection = netmiko.ConnectHandler(device_type=device_type,
-                                                        ip=self.current_ip_address,
-                                                        username=cred.username,
-                                                        password=cred.password,
-                                                        secret=cred.secret
-                                                        )
+                    self.connection = netmiko.ConnectHandler(
+                        device_type=device_type,
+                        ip=self.current_ip_address,
+                        username=cred.username,
+                        password=cred.password,
+                        secret=cred.secret
+                    )
                     self.device_type = device_type
                     self.prompt = True
                     self.connection.enable()
