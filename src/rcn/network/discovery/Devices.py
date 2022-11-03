@@ -32,26 +32,32 @@ class Devices:
     def device_collection(self) -> Collection:
         return self._device_collection
 
-    def next(self):
+    def next(self,Working=False):
+        filter = {
+            "$or": [
+                {"Queue": None},
+                {
+                    "Queue.locked_by": None, 
+                    "Queue.locked_at": None, 
+                    "$or": [
+                        {"Queue.next_poll": {"$exists": False}}, 
+                        {"Queue.next_poll": None}, 
+                        {"Queue.next_poll": {"$lt": datetime.datetime.now()}}
+                    ]
+                }
+            ]
+        }
+        if Working:
+            filter["NetDiscovery.result"] = "Working",
+        else:
+            filter["NetDiscovery.result"] = {"$ne": "Working"},
+            
 
         aggregate_result = list(
             self.device_collection.aggregate(
                 [
                     {
-                        "$match": {
-                            "$or": [
-                                {"Queue": None},
-                                {
-                                    "Queue.locked_by": None, 
-                                    "Queue.locked_at": None, 
-                                    "$or": [
-                                        {"Queue.next_poll": {"$exists": False}}, 
-                                        {"Queue.next_poll": None}, 
-                                        {"Queue.next_poll": {"$lt": datetime.datetime.now()}}
-                                    ]
-                                }
-                            ]
-                        }
+                        "$match": 
                     },
                     {"$limit": 1},
                 ],
