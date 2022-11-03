@@ -214,7 +214,7 @@ class Device:
     def init_ping(self):
         try:
             output = subprocess.check_output("ping -{} 1 {}".format('n' if platform.system().lower(
-            ) == "windows" else 'c', self.current_IP_address), shell=True, universal_newlines=True)
+            ) == "windows" else 'c', self.current_ip_address), shell=True, universal_newlines=True)
             if 'unreachable' in output:
                 self.pingable =  False
             else:
