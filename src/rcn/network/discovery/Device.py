@@ -118,6 +118,14 @@ class Device:
 
         return self.pingable
 
+    @property
+    def Succesful(self):
+        if self.prompt and self.enable:
+            return True
+        else:
+            return False
+
+
     def close_connection(self):
         self.connection.disconnect()
 
@@ -160,13 +168,16 @@ class Device:
             "result": result,
             "enable": self.enable,
             "prompt": self.prompt,
+            "succesful": self.Succesful,
             "last_error": self.error,
             "device_type": self.device_type,
         }
         if self.pingable:
             NetDiscovery_data["pingable"] = self.pingable
-        elif result == "Working":
+        elif self.Succesful:
             NetDiscovery_data["pingable"] = "Skipped"
+        
+        if self.Succesful:            
             NetDiscovery_data["source"] = socket.gethostname()
 
 
