@@ -256,6 +256,7 @@ class Device:
                 "$set": {
                     "locked_by": self.current_index,
                     "locked_at": datetime.datetime.now(),
+                    "started_at": datetime.datetime.now(),
                     "next_poll": datetime.datetime.now() +  datetime.timedelta(hours=3) +  datetime.timedelta(minutes=random.randint(1,40))
                 },
                 "$inc": {"attempts": 1},
