@@ -30,7 +30,7 @@ class Devices:
     def device_collection(self) -> Collection:
         return self._device_collection
 
-    def QueueFilter(self, suffix="NetDiscovery"):
+    def QueueFilter(self, suffix):
         filter = {
             "$or": [
                 {f"{suffix}": None},
@@ -45,6 +45,7 @@ class Devices:
                     ],
                 },
             ],
+            f"{suffix}.successful": False
         }
         return filter
 
