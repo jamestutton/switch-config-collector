@@ -79,7 +79,7 @@ class Device:
     @property
     def port(self):
         if "port" in self._data and self._data["port"]:
-            return int(self._data["port"])
+            return int(self._data["port"].replace(",",""))
         else:
             return None
 
