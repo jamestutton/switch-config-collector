@@ -17,6 +17,7 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 from rcn.mongo import mongo_client
 from rcn.network.discovery.utils import CSV2List
 from starlette.config import Config
+from pydantic import BaseModel
 
 # import time
 # import ipaddress
@@ -35,6 +36,12 @@ logger.setLevel(logging.INFO)
 config = Config()
 
 SnmpCommunityStrings = CSV2List("SNMP.lst")
+
+
+class SNNPData(BaseModel):
+    Codename: str
+    Hostname: str
+    Model: str    
 
 
 class Device:
@@ -59,6 +66,8 @@ class Device:
         self.enable = None
         self.error = None
         self.snmp_codename = None
+
+        self.SNMP = SNNPData
 
     @property
     def current_ip_address(self):
@@ -168,7 +177,7 @@ class Device:
         }
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
-            update={"$set": {"{suffix}.Queue": Queue_data}},
+            update={"$set": {f"{suffix}.Queue": Queue_data}},
             return_document=ReturnDocument.AFTER,
         )
 
