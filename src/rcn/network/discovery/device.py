@@ -249,7 +249,7 @@ class Device:
         else:
             result = "Ping Failed"
         time_taken = time.time() - start_time
-        logger.warning(f"Tested {self.ip} in ({time_taken}s) result= {result}")
+        logger.warning(f"Tested {self.ip}:{self.port} in ({time_taken}s) result= {result}")
         self.UpdateNetDiscovery(result)
         self.Unlock(Device.NetworkDiscoveryName())
 
