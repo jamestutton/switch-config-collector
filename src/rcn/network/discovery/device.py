@@ -64,7 +64,10 @@ class Device:
 
     @property
     def current_ip_address(self):
-        return self._data["Management IP"]
+        if "Management IP" in self._data and self._data["Management IP"]:
+            return self._data["Management IP"]
+        else:
+            return None
 
     @property
     def ip(self):
