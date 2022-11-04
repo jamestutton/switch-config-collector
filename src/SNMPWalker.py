@@ -29,7 +29,7 @@ config = Config()
 
 def TestDevice(device: Device):
     try:
-        device.TestComms()
+        device.FindSNMPCommunity()
     except Exception as e:
         logger.exception(f"Exception Processing {device.ip}")
         logger.exception(e)
