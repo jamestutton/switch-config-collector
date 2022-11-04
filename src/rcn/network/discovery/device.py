@@ -152,6 +152,17 @@ class Device:
             return_document=ReturnDocument.AFTER,
         )
 
+    def SetSNMP(self):
+        self._data = self.device_collection.find_one_and_update(
+            filter={"Management IP": self.current_ip_address},
+            update={
+                "$set": {
+                    "NetDiscovery.SNMP": self.snmp_community,
+                },
+            },
+            return_document=ReturnDocument.AFTER,
+        )
+
     def Processing(self):
         Queue_data = {
             "locked_by": self.current_index,
@@ -273,10 +284,11 @@ class Device:
         for item in SnmpCommunityStrings:
           if self.TrySNMPString(item["value"]):
             self.snmp_community = item["code_name"]
+            self.SetSNMP()
             break
         self.Completed()
         time_taken = (time.time() - start_time)
-        logger.warning(f"SNMP MATCH {self.ip} in ({time_taken}s) result= {self.snmp_community}")
+        logger.warning(f"FindSNMPCommunity {self.ip} in ({time_taken}s) result= {self.snmp_community}")
         
 
 
