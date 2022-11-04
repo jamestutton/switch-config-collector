@@ -255,7 +255,7 @@ class Device:
 
         # Check if there was an error querying the device
         if errorIndication:
-            logger.error(f"{snmp_community} on {self.ip} {errorIndication}, {errorStatus}, {errorIndex}")
+            logger.debug(f"FAILED {snmp_community} on {self.ip} {errorIndication}, {errorStatus}, {errorIndex}")
         else:
             for oid, val in varBinds:
                 if val:
