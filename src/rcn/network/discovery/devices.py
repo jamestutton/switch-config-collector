@@ -33,7 +33,6 @@ class Devices:
     def QueueFilter(self, suffix):
         filter = {
             "$or": [
-                {f"{suffix}": None},
                 {f"{suffix}.Queue": None},
                 {
                     f"{suffix}.Queue.locked_by": None,
@@ -45,6 +44,7 @@ class Devices:
                     ],
                 },
             ],
+            f"{suffix}": {"$exists": True}
         }
         return filter
 
