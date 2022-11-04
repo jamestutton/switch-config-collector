@@ -50,9 +50,9 @@ class Device:
         self.current_index = current_index
 
         _MONGODB_NAME = config("MONGODB_NAME", cast=str)
-
+        _MONGODB_COLLECTION = config("MONGODB_COLLECTION",default="network", cast=str)
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
-        self._device_collection = getattr(self._MONGODB, "network")
+        self._device_collection = getattr(self._MONGODB, f"{_MONGODB_COLLECTION}")
 
         # netmiko device types to test in order
         self.device_types = ["cisco_ios_ssh", "cisco_ios_telnet", "autodetect"]

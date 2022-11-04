@@ -19,9 +19,9 @@ class Devices:
     def __init__(self):
         config = Config()
         _MONGODB_NAME = config("MONGODB_NAME", cast=str)
+        _MONGODB_COLLECTION = config("MONGODB_COLLECTION",default="network", cast=str)
         self._MONGODB = mongo_client[f"{_MONGODB_NAME}"]
-        self.collect_config_result = "UNKOWN"
-        self._device_collection = getattr(self._MONGODB, "network")
+        self._device_collection = getattr(self._MONGODB, f"{_MONGODB_COLLECTION}")
         self.max_attempts = 1
 
         self._batch_size = config("BATCH_SIZE", cast=int, default=32)
