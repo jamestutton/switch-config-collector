@@ -60,7 +60,7 @@ class Device:
         self.prompt = None
         self.enable = None
         self.error = None
-        self.snmp_community = None
+        self.snmp_codename = None
 
     @property
     def current_ip_address(self):
@@ -157,7 +157,7 @@ class Device:
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": {
-                    "NetDiscovery.SNMP_Codename": self.snmp_community,
+                    "NetDiscovery.SNMP_Codename": self.snmp_codename,
                 },
             },
             return_document=ReturnDocument.AFTER,
@@ -283,12 +283,12 @@ class Device:
         my_list = SnmpCommunityStrings
         for item in SnmpCommunityStrings:
           if self.TrySNMPString(item["value"]):
-            self.snmp_community = item["code_name"]
+            self.snmp_codename = item["code_name"]
             self.SetSNMP()
             break
         self.Completed()
         time_taken = (time.time() - start_time)
-        logger.warning(f"FindSNMPCommunity {self.ip} in ({time_taken}s) result= {self.snmp_community}")
+        logger.warning(f"FindSNMPCommunity {self.ip} in ({time_taken}s) result= {self.snmp_codename}")
         
 
 
