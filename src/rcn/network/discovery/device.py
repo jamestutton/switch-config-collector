@@ -268,9 +268,8 @@ class Device:
     def FindSNMPCommunity(self):
         start_time = time.time()
         self.Processing()
-        logger.info(f"Testing {self.ip}")
         for community in SnmpCommunityStrings:
-          if valid := self.TestComm(community):
+          if valid := self.TrySNMPString(community):
             self.snmp_community = valid
             break
         self.Completed()
