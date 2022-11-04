@@ -14,6 +14,8 @@ from pymongo import ReturnDocument
 from pymongo.collection import Collection
 from rcn.mongo import mongo_client
 from starlette.config import Config
+from pysnmp.entity.rfc3413.oneliner import cmdgen
+from rcn.network.discovery.utils import File2List
 
 # import time
 # import ipaddress
@@ -30,6 +32,11 @@ from starlette.config import Config
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 config = Config()
+
+SnmpCommunityStrings = File2List("Communities.lst")
+
+
+
 
 
 class Device:
@@ -159,6 +166,24 @@ class Device:
             return_document=ReturnDocument.AFTER,
         )
 
+    def Completed(self):
+        Queue_data = {
+            "locked_by": None,
+            "locked_at": None,
+            "completed_at": datetime.datetime.now(),
+            "next_poll": datetime.datetime.now()
+            + datetime.timedelta(hours=3)
+            + datetime.timedelta(minutes=random.randint(1, 40)),
+        }
+        
+        self._data = self.device_collection.find_one_and_update(
+            filter={"Management IP": self.current_ip_address},
+            update={
+                "$set": {"Queue": Queue_data},
+            },
+            return_document=ReturnDocument.AFTER,
+        )
+
     def UpdateDB(self, result):
         Queue_data = {
             "locked_by": None,
@@ -210,3 +235,47 @@ class Device:
         time_taken = (time.time() - start_time)
         logger.warning(f"Tested {self.ip} in ({time_taken}s) result= {result}")
         self.UpdateDB(result)
+
+    def TrySNMPString(self,snmp_community,OID = '1.3.6.1.2.1.1.5.0'):
+        logger.debug(f"Trying {snmp_community} on {self.ip}")
+        # Define a PySNMP CommunityData object named auth, by providing the SNMP community string
+        auth = cmdgen.CommunityData(snmp_community)
+
+        # Define the CommandGenerator, which will be used to send SNMP queries
+        cmdGen = cmdgen.CommandGenerator()
+
+        # Query a network device using the getCmd() function, providing the auth object, a UDP transport
+        # our OID for SYSNAME, and don't lookup the OID in PySNMP's MIB's
+        errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
+                auth,
+                cmdgen.UdpTransportTarget((self.ip, 161),timeout=1.0, retries=0),
+                cmdgen.MibVariable(OID),
+                lookupMib=False,
+        )
+
+        # Check if there was an error querying the device
+        if errorIndication:
+            logger.error(f"{snmp_community} on {self.ip} {errorIndication}, {errorStatus}, {errorIndex}")
+        else:
+            for oid, val in varBinds:
+                if val:
+                    logger.debug(f"MATCHED {self.ip} {snmp_community} {oid}=={val}")
+                    return snmp_community
+                else:
+                    logger.info(f"KNOWN {self.ip} {snmp_community} {oid}=={val}")
+
+
+    def FindSNMPCommunity(self):
+        start_time = time.time()
+        self.Processing()
+        logger.info(f"Testing {self.ip}")
+        for community in SnmpCommunityStrings:
+          if valid := self.TestComm(community):
+            self.snmp_community = valid
+            break
+        self.Completed()
+        time_taken = (time.time() - start_time)
+        logger.warning(f"SNMP MATCH {self.ip} in ({time_taken}s) result= {self.snmp_community}")
+        
+
+
