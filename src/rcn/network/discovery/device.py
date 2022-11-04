@@ -99,6 +99,13 @@ class Device:
             return False
 
     def init_connection(self):
+        # Set to the specific algorithms you require
+        paramiko.Transport._preferred_kex = (
+            'diffie-hellman-group14-sha1', 
+            'diffie-hellman-group1-sha1',
+            'diffie-hellman-group-exchange-sha1',
+            'diffie-hellman-group-exchange-sha256'
+        )
         for device_type in self.device_types:
             for cred in credentials(self.current_ip_address).list:
                 try:
