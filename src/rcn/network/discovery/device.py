@@ -269,6 +269,8 @@ class Device:
     def FindSNMPCommunity(self):
         start_time = time.time()
         self.Processing()
+        my_list = SnmpCommunityStrings
+        print(my_list)
         for index in SnmpCommunityStrings:
           item = SnmpCommunityStrings[index]
           if self.TrySNMPString(item["value"]):
