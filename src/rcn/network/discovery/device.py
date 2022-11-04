@@ -157,7 +157,7 @@ class Device:
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": {
-                    "NetDiscovery.SNMP": self.snmp_community,
+                    "NetDiscovery.SNMP_Codename": self.snmp_community,
                 },
             },
             return_document=ReturnDocument.AFTER,
