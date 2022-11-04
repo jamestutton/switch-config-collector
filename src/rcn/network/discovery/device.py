@@ -137,7 +137,7 @@ class Device:
             return False
 
     @staticmethod
-    def NetworkDiscoveryName(cls):
+    def NetworkDiscoveryName():
         return f"NetDiscovery__{Device.Hostname()}"
 
 
