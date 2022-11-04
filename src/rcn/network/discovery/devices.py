@@ -30,7 +30,7 @@ class Devices:
     def device_collection(self) -> Collection:
         return self._device_collection
 
-    @property
+    
     def QueueFilter(self,suffix="NetDiscovery"):
         filter = { 
             "$or": [
