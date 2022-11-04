@@ -60,6 +60,7 @@ class Device:
         self.prompt = None
         self.enable = None
         self.error = None
+        self.snmp_community = None
 
     @property
     def current_ip_address(self):
