@@ -30,6 +30,46 @@ class Devices:
     def device_collection(self) -> Collection:
         return self._device_collection
 
+    def nextSNMP(self):
+        filter = {
+            "$or": [
+                {"Queue": None},
+                {
+                    "Queue.locked_by": None,
+                    "Queue.locked_at": None,
+                    "$or": [
+                        {"Queue.next_poll": {"$exists": False}},
+                        {"Queue.next_poll": None},
+                        {"Queue.next_poll": {"$lt": datetime.datetime.now()}},
+                    ],
+                },
+            ],
+            "$or": [
+                {"NetDiscovery.SNMP_Codename": {"$exists": False}},
+                {"NetDiscovery.SNMP_Codename": None},
+            ]
+        }
+        
+
+        aggregate_result = list(
+            self.device_collection.aggregate(
+                [
+                    {"$match": filter},
+                    {"$limit": 1},
+                ],
+            ),
+        )
+        if not aggregate_result:
+            return None
+        return self._wrap_one(
+            self.device_collection.find_one_and_update(
+                filter={"_id": aggregate_result[0]["_id"], "Queue.locked_by": None, "Queue.locked_at": None},
+                update={"$set": {"Queue.locked_at": datetime.datetime.now()}},
+                return_document=ReturnDocument.AFTER,
+            ),
+        )
+
+
     def next(self, Working=False):
         filter = {
             "$or": [

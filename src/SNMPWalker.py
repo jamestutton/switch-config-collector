@@ -43,7 +43,7 @@ if __name__ == "__main__":
         i = 0
         devs = Devices()
 
-        while dev := devs.next():
+        while dev := devs.nextSNMP():
             i += 1
             if dev.current_ip_address:
                 dev.current_index = i
