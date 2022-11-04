@@ -45,12 +45,12 @@ class Devices:
                     ],
                 },
             ],
-            f"{suffix}.successful": False
         }
         return filter
 
-    def _next(self, suffix):
+    def _next(self, suffix,):
         filter = self.QueueFilter(suffix)
+        
 
         aggregate_result = list(
             self.device_collection.aggregate(
