@@ -4,7 +4,7 @@ import pandas as pd
 
 def CSV2List(file):
     df = pd.read_csv(file)
-    return df.values.tolist()
+    return df.to_dict("records")
 
 def File2List(file):
     mylist = []

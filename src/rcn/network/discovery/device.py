@@ -271,8 +271,7 @@ class Device:
         self.Processing()
         my_list = SnmpCommunityStrings
         print(my_list)
-        for index in SnmpCommunityStrings:
-          item = SnmpCommunityStrings[index]
+        for item in SnmpCommunityStrings:
           if self.TrySNMPString(item["value"]):
             self.snmp_community = item["code_name"]
             break
