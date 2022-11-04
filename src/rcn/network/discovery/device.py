@@ -269,9 +269,10 @@ class Device:
     def FindSNMPCommunity(self):
         start_time = time.time()
         self.Processing()
-        for community in SnmpCommunityStrings:
-          if self.TrySNMPString(community["value"]):
-            self.snmp_community = community["code_name"]
+        for index in SnmpCommunityStrings:
+          item = SnmpCommunityStrings[index]
+          if self.TrySNMPString(item["value"]):
+            self.snmp_community = item["code_name"]
             break
         self.Completed()
         time_taken = (time.time() - start_time)
