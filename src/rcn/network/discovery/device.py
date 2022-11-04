@@ -156,17 +156,19 @@ class Device:
         )
 
     def SetSNMP(self):
+
+
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
                 "$set": {
-                    "NetDiscovery.SNMP_Codename": self.snmp_codename,
+                    "SNMP.Codename": self.snmp_codename,
                 },
             },
             return_document=ReturnDocument.AFTER,
         )
 
-    def Processing(self):
+    def Lock(self,suffix="NetDiscovery"):
         Queue_data = {
             "locked_by": self.current_index,
             "locked_at": datetime.datetime.now(),
@@ -177,11 +179,11 @@ class Device:
         }
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
-            update={"$set": {"Queue": Queue_data}},
+            update={"$set": {"{suffix}.Queue": Queue_data}},
             return_document=ReturnDocument.AFTER,
         )
 
-    def Completed(self):
+    def Unlock(self,suffix="NetDiscovery"):
         Queue_data = {
             "locked_by": None,
             "locked_at": None,
@@ -194,20 +196,12 @@ class Device:
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
-                "$set": {"Queue": Queue_data},
+                "$set": {"{suffix}.Queue": Queue_data},
             },
             return_document=ReturnDocument.AFTER,
         )
 
-    def UpdateDB(self, result):
-        Queue_data = {
-            "locked_by": None,
-            "locked_at": None,
-            "completed_at": datetime.datetime.now(),
-            "next_poll": datetime.datetime.now()
-            + datetime.timedelta(hours=3)
-            + datetime.timedelta(minutes=random.randint(1, 40)),
-        }
+    def UpdateNetDiscovery(self, result):
         NetDiscovery_data = {
             "result": result,
             "enable": self.enable,
@@ -228,14 +222,16 @@ class Device:
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
-                "$set": {"Queue": Queue_data, "NetDiscovery": NetDiscovery_data},
+                "$set": {"NetDiscovery": NetDiscovery_data},
             },
             return_document=ReturnDocument.AFTER,
         )
+        
+
 
     def TestComms(self, skipping=False):
         start_time = time.time()
-        self.Processing()
+        self.Lock()
         logger.info(f"Testing {self.ip}")
         result = "UNKNOWN"
         if skipping or self.init_ping():
@@ -249,7 +245,8 @@ class Device:
             result = "Ping Failed"
         time_taken = (time.time() - start_time)
         logger.warning(f"Tested {self.ip} in ({time_taken}s) result= {result}")
-        self.UpdateDB(result)
+        self.UpdateNetDiscovery(result)
+        self.Unlock()
 
     def TrySNMPString(self,snmp_community,OID = '1.3.6.1.2.1.1.5.0'):
         logger.debug(f"Trying {snmp_community} on {self.ip}")
@@ -282,14 +279,14 @@ class Device:
 
     def FindSNMPCommunity(self):
         start_time = time.time()
-        self.Processing()
+        self.Lock("SNMP")
         my_list = SnmpCommunityStrings
         for item in SnmpCommunityStrings:
           if self.TrySNMPString(item["value"]):
             self.snmp_codename = item["code_name"]
             self.SetSNMP()
             break
-        self.Completed()
+        self.Unlock("SNMP")
         time_taken = (time.time() - start_time)
         logger.warning(f"FindSNMPCommunity {self.ip} in ({time_taken}s) result= {self.snmp_codename}")
         
