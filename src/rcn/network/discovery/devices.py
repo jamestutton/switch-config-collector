@@ -44,10 +44,10 @@ class Devices:
                     ],
                 },
             ],
-            "$or": [
-                {"NetDiscovery.SNMP_Codename": {"$exists": False}},
-                {"NetDiscovery.SNMP_Codename": None},
-            ]
+            # "$or": [
+            #     {"NetDiscovery.SNMP_Codename": {"$exists": False}},
+            #     {"NetDiscovery.SNMP_Codename": None},
+            # ]
         }
         
 
