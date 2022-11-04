@@ -136,24 +136,20 @@ class Device:
         else:
             return False
 
-    @property
-    def Source(self):
-        host = socket.gethostname()
-        return f"from__{host}"
+    @staticmethod
+    def NetworkDiscoveryName(cls):
+        return f"NetDiscovery__{Device.Hostname()}"
+
+
+    @staticmethod
+    def Hostname():
+        return socket.gethostname()
+        
 
     def close_connection(self):
         self.connection.disconnect()
 
-    def HitsTacacs(self):
-        self._data = self.device_collection.find_one_and_update(
-            filter={"Management IP": self.current_ip_address},
-            update={
-                "$set": {
-                    "NetDiscovery.HitsTacacs": True,
-                },
-            },
-            return_document=ReturnDocument.AFTER,
-        )
+
 
     def SetSNMP(self):
 
@@ -168,7 +164,7 @@ class Device:
             return_document=ReturnDocument.AFTER,
         )
 
-    def Lock(self,suffix="NetDiscovery"):
+    def Lock(self,suffix):
         Queue_data = {
             "locked_by": self.current_index,
             "locked_at": datetime.datetime.now(),
@@ -183,7 +179,7 @@ class Device:
             return_document=ReturnDocument.AFTER,
         )
 
-    def Unlock(self,suffix="NetDiscovery"):
+    def Unlock(self,suffix):
         Queue_data = {
             "locked_by": None,
             "locked_at": None,
@@ -215,14 +211,17 @@ class Device:
         elif self.Succesful:
             NetDiscovery_data["pingable"] = "Skipped"
         
-        NetDiscovery_data["source"] = self.Source       
-        NetDiscovery_data[self.Source] = self.Succesful
+        NetDiscovery_data["source"] = self.Source()
+        
 
 
         self._data = self.device_collection.find_one_and_update(
             filter={"Management IP": self.current_ip_address},
             update={
-                "$set": {"NetDiscovery": NetDiscovery_data},
+                "$set": {
+                    f"{Device.NetworkDiscoveryName()}": NetDiscovery_data,
+                    "NetDiscovery__Last": NetDiscovery_data,
+                },
             },
             return_document=ReturnDocument.AFTER,
         )
@@ -231,7 +230,7 @@ class Device:
 
     def TestComms(self, skipping=False):
         start_time = time.time()
-        self.Lock()
+        self.Lock(Device.NetworkDiscoveryName())
         logger.info(f"Testing {self.ip}")
         result = "UNKNOWN"
         if skipping or self.init_ping():
@@ -246,7 +245,7 @@ class Device:
         time_taken = (time.time() - start_time)
         logger.warning(f"Tested {self.ip} in ({time_taken}s) result= {result}")
         self.UpdateNetDiscovery(result)
-        self.Unlock()
+        self.Unlock(Device.NetworkDiscoveryName())
 
     def TrySNMPString(self,snmp_community,OID = '1.3.6.1.2.1.1.5.0'):
         logger.debug(f"Trying {snmp_community} on {self.ip}")

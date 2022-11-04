@@ -78,7 +78,7 @@ class Devices:
 
 
     def nextNetDiscovery(self):
-        return self._next("NetDiscovery")
+        return self._next(Device.NetworkDiscoveryName())
   
 
     def _wrap_one(self, data):
