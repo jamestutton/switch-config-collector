@@ -30,9 +30,8 @@ class Devices:
     def device_collection(self) -> Collection:
         return self._device_collection
 
-    
-    def QueueFilter(self,suffix="NetDiscovery"):
-        filter = { 
+    def QueueFilter(self, suffix="NetDiscovery"):
+        filter = {
             "$or": [
                 {f"{suffix}": None},
                 {f"{suffix}.Queue": None},
@@ -45,14 +44,12 @@ class Devices:
                         {f"{suffix}.Queue.next_poll": {"$lt": datetime.datetime.now()}},
                     ],
                 },
-            ]
+            ],
         }
         return filter
 
-    def _next(self,suffix):
+    def _next(self, suffix):
         filter = self.QueueFilter(suffix)
-
-        
 
         aggregate_result = list(
             self.device_collection.aggregate(
@@ -66,7 +63,11 @@ class Devices:
             return None
         return self._wrap_one(
             self.device_collection.find_one_and_update(
-                filter={"_id": aggregate_result[0]["_id"], f"{suffix}.Queue.locked_by": None, f"{suffix}.locked_at": None},
+                filter={
+                    "_id": aggregate_result[0]["_id"],
+                    f"{suffix}.Queue.locked_by": None,
+                    f"{suffix}.locked_at": None,
+                },
                 update={"$set": {f"{suffix}.Queue.locked_at": datetime.datetime.now()}},
                 return_document=ReturnDocument.AFTER,
             ),
@@ -74,12 +75,9 @@ class Devices:
 
     def nextSNMP(self):
         return self._next("SNMP")
-        
-
 
     def nextNetDiscovery(self):
         return self._next(Device.NetworkDiscoveryName())
-  
 
     def _wrap_one(self, data):
         return Device(data) or None
