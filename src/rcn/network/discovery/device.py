@@ -15,7 +15,7 @@ from pymongo.collection import Collection
 from rcn.mongo import mongo_client
 from starlette.config import Config
 from pysnmp.entity.rfc3413.oneliner import cmdgen
-from rcn.network.discovery.utils import File2List
+from rcn.network.discovery.utils import CSV2List
 
 # import time
 # import ipaddress
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 config = Config()
 
-SnmpCommunityStrings = File2List("Communities.lst")
+SnmpCommunityStrings = CSV2List("SNMP.lst")
 
 
 
@@ -269,8 +269,8 @@ class Device:
         start_time = time.time()
         self.Processing()
         for community in SnmpCommunityStrings:
-          if valid := self.TrySNMPString(community):
-            self.snmp_community = valid
+          if self.TrySNMPString(community["value"]):
+            self.snmp_community = community["code_name"]
             break
         self.Completed()
         time_taken = (time.time() - start_time)
