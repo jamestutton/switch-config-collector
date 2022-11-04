@@ -138,11 +138,11 @@ class Device:
 
     @staticmethod
     def NetworkDiscoveryName():
-        return f"NetDiscovery__{Device.Hostname()}"
+        return f"NetDiscovery__{Device.LocalHostname()}"
 
 
     @staticmethod
-    def Hostname():
+    def LocalHostname():
         return socket.gethostname()
         
 
@@ -211,7 +211,7 @@ class Device:
         elif self.Succesful:
             NetDiscovery_data["pingable"] = "Skipped"
         
-        NetDiscovery_data["source"] = self.Source()
+        NetDiscovery_data["source"] = Device.LocalHostname()
         
 
 
