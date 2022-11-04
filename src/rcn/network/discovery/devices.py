@@ -30,25 +30,28 @@ class Devices:
     def device_collection(self) -> Collection:
         return self._device_collection
 
-    def nextSNMP(self):
-        filter = {
+    @property
+    def QueueFilter(self,suffix="NetDiscovery"):
+        filter = { 
             "$or": [
-                {"Queue": None},
+                {f"{suffix}": None},
+                {f"{suffix}.Queue": None},
                 {
-                    "Queue.locked_by": None,
-                    "Queue.locked_at": None,
+                    f"{suffix}.Queue.locked_by": None,
+                    f"{suffix}.Queue.locked_at": None,
                     "$or": [
-                        {"Queue.next_poll": {"$exists": False}},
-                        {"Queue.next_poll": None},
-                        {"Queue.next_poll": {"$lt": datetime.datetime.now()}},
+                        {f"{suffix}.Queue.next_poll": {"$exists": False}},
+                        {f"{suffix}.Queue.next_poll": None},
+                        {f"{suffix}.Queue.next_poll": {"$lt": datetime.datetime.now()}},
                     ],
                 },
-            ],
-            # "$or": [
-            #     {"NetDiscovery.SNMP_Codename": {"$exists": False}},
-            #     {"NetDiscovery.SNMP_Codename": None},
-            # ]
+            ]
         }
+        return filter
+
+    def _next(self,suffix):
+        filter = self.QueueFilter(suffix)
+
         
 
         aggregate_result = list(
@@ -63,50 +66,20 @@ class Devices:
             return None
         return self._wrap_one(
             self.device_collection.find_one_and_update(
-                filter={"_id": aggregate_result[0]["_id"], "Queue.locked_by": None, "Queue.locked_at": None},
-                update={"$set": {"Queue.locked_at": datetime.datetime.now()}},
+                filter={"_id": aggregate_result[0]["_id"], f"{suffix}.Queue.locked_by": None, f"{suffix}.locked_at": None},
+                update={"$set": {f"{suffix}.Queue.locked_at": datetime.datetime.now()}},
                 return_document=ReturnDocument.AFTER,
             ),
         )
 
+    def nextSNMP(self):
+        return self._next("SNMP")
+        
 
-    def next(self, Working=False):
-        filter = {
-            "$or": [
-                {"Queue": None},
-                {
-                    "Queue.locked_by": None,
-                    "Queue.locked_at": None,
-                    "$or": [
-                        {"Queue.next_poll": {"$exists": False}},
-                        {"Queue.next_poll": None},
-                        {"Queue.next_poll": {"$lt": datetime.datetime.now()}},
-                    ],
-                },
-            ],
-        }
-        if Working:
-            filter["NetDiscovery.result"] = "Working"
-        else:
-            filter["NetDiscovery.result"] = {"$ne": "Working"}
 
-        aggregate_result = list(
-            self.device_collection.aggregate(
-                [
-                    {"$match": filter},
-                    {"$limit": 1},
-                ],
-            ),
-        )
-        if not aggregate_result:
-            return None
-        return self._wrap_one(
-            self.device_collection.find_one_and_update(
-                filter={"_id": aggregate_result[0]["_id"], "Queue.locked_by": None, "Queue.locked_at": None},
-                update={"$set": {"Queue.locked_at": datetime.datetime.now()}},
-                return_document=ReturnDocument.AFTER,
-            ),
-        )
+    def nextNetDiscovery(self):
+        return self._next("NetDiscovery")
+  
 
     def _wrap_one(self, data):
         return Device(data) or None
