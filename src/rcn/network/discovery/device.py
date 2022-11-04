@@ -77,6 +77,13 @@ class Device:
             return None
 
     @property
+    def port(self):
+        if "port" in self._data and self._data["port"]:
+            return self._data["port"]
+        else:
+            return None
+
+    @property
     def ip(self):
         return self.current_ip_address
 
@@ -101,6 +108,7 @@ class Device:
                         username=cred.username,
                         password=cred.password,
                         secret=cred.secret,
+                        port=self.port
                     )
                     self.device_type = device_type
                     self.prompt = True
